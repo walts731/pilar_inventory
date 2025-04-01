@@ -1,0 +1,470 @@
+:root {
+    --sidebar-width: 250px;
+    --topbar-height: 60px;
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+}
+
+body {
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: var(--secondary-color);
+    color: white;
+    transition: all 0.3s;
+    z-index: 1000;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar-header {
+    padding: 20px;
+    background-color: rgba(0,0,0,0.1);
+}
+
+.sidebar-menu {
+    padding: 0;
+    list-style: none;
+}
+
+.sidebar-menu li {
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-menu li a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-menu li a i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.sidebar-menu li:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.sidebar-menu li.active {
+    background-color: var(--primary-color);
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 20px;
+    transition: all 0.3s;
+}
+
+.topbar {
+    height: var(--topbar-height);
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+}
+
+.toggle-sidebar {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.dashboard-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.card-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.card-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.user-form {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 25px;
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    /* Basic styles */
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+/* Sidebar styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    background-color: #343a40;
+    color: white;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 1rem 0;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-menu li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-menu li a i {
+    margin-right: 10px;
+}
+
+.sidebar-menu li.active a,
+.sidebar-menu li a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Main content styles */
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Topbar styles */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Toggle sidebar button */
+.toggle-sidebar {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+/* Card styles */
+.dashboard-card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #007bff;
+}
+
+.card-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.card-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Form styles */
+.user-form {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 991.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .toggle-sidebar {
+        display: block;
+    }
+
+    /* Add overlay when sidebar is active */
+    .sidebar.active::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+}
+
+/* Table responsive styles */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Additional utility classes */
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.px-0 {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Form control focus states */
+.form-control:focus,
+.form-select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Button hover states */
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* Dropdown menu styles */
+.dropdown-menu {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item i {
+    width: 1rem;
+    margin-right: 0.5rem;
+}
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .toggle-sidebar {
+        display: block;
+    }
+}
+
+.report-card {
+    transition: transform 0.3s;
+    cursor: pointer;
+    height: 100%;
+}
+
+.report-card:hover {
+    transform: translateY(-5px);
+}
+
+.report-card.active {
+    border-color: #0d6efd;
+    border-width: 2px;
+}
+
+.report-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.filter-section {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.status-available {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-in-use {
+    background-color: #cff4fc;
+    color: #055160;
+}
+
+.status-maintenance {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.status-retired {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.asset-status-available {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.asset-status-in-use {
+    background-color: #cff4fc;
+    color: #055160;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.asset-status-maintenance {
+    background-color: #fff3cd;
+    color: #664d03;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.asset-status-retired {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.category-stat {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.category-stat:hover {
+    background-color: #e9ecef;
+}
+
+.asset-status-available {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.asset-status-in-use {
+    background-color: #cff4fc;
+    color: #055160;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.asset-status-maintenance {
+    background-color: #fff3cd;
+    color: #664d03;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.asset-status-retired {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link {
+    color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+    font-weight: bold;
+    color: #0d6efd;
+}
