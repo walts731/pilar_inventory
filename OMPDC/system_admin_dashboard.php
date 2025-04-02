@@ -8,134 +8,152 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'super_admin') {
     exit();
 }
 
-// Fetch summary data
-$total_assets_query = $conn->query("SELECT COUNT(*) AS total FROM assets");
-$total_assets = $total_assets_query->fetch_assoc()['total'] ?? 0;
+// Fetch summary data using prepared statements
+function fetch_count($conn, $query, $param_types = '', $params = [])
+{
+    $stmt = $conn->prepare($query);
+    if (!empty($params)) {
+        $stmt->bind_param($param_types, ...$params);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc()['total'] ?? 0;
+}
 
-$pending_requests_query = $conn->query("SELECT COUNT(*) AS total FROM asset_requests WHERE status='pending'");
-$pending_requests = $pending_requests_query->fetch_assoc()['total'] ?? 0;
+$total_assets = fetch_count($conn, "SELECT COUNT(*) AS total FROM assets");
+$pending_requests = fetch_count($conn, "SELECT COUNT(*) AS total FROM asset_requests WHERE status='pending'");
+$red_tagged_assets = fetch_count($conn, "SELECT COUNT(*) AS total FROM assets WHERE status='red-tagged'");
+$low_stock_assets = fetch_count($conn, "SELECT COUNT(*) AS total FROM assets WHERE stock <= 5");
 
-$red_tagged_assets_query = $conn->query("SELECT COUNT(*) AS total FROM assets WHERE status='red-tagged'");
-$red_tagged_assets = $red_tagged_assets_query->fetch_assoc()['total'] ?? 0;
+// Fetch recent activities (actions related to inventory such as adding, borrowing, transferring)
+$activities_query = "
+    SELECT u.username, a.activity, a.module, a.timestamp 
+    FROM activity_log a
+    JOIN users u ON a.user_id = u.id
+    ORDER BY a.timestamp DESC LIMIT 5";
 
-$low_stock_assets_query = $conn->query("SELECT COUNT(*) AS total FROM assets WHERE stock <= 5");
-$low_stock_assets = $low_stock_assets_query->fetch_assoc()['total'] ?? 0;
 
-// Fetch latest activities
-$activities_result = $conn->query("SELECT * FROM activity_log ORDER BY timestamp DESC LIMIT 5");
-$activities = $activities_result->fetch_all(MYSQLI_ASSOC);
+$activities = $conn->query($activities_query)->fetch_all(MYSQLI_ASSOC);
 
 // Fetch users
-$users_result = $conn->query("SELECT * FROM users");
-$users = $users_result->fetch_all(MYSQLI_ASSOC);
+$users_query = "SELECT * FROM users";
+$users = $conn->query($users_query)->fetch_all(MYSQLI_ASSOC);
+
+// Fetch recent inventory actions (e.g., adding inventory, borrowing, transferring)
+$recent_inventory_actions_query = "
+    SELECT action_name, category, quantity, action_date 
+    FROM inventory_actions 
+    ORDER BY action_date DESC LIMIT 5";
+
+$recent_inventory_actions = $conn->query($recent_inventory_actions_query)->fetch_all(MYSQLI_ASSOC);
 
 $conn->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../css/style.css">
+    <?php include '../includes/links.php'; ?>
 </head>
+
 <body>
+    <div class="d-flex">
+        <?php include '../includes/sidebar.php'; ?>
+        <div class="container-fluid p-4">
+            <?php include '../includes/topbar.php'; ?>
+            <div class="row mt-3">
+                <!-- Asset-based summary cards -->
+                <?php
+                $cards = [
+                    ['title' => 'Total Assets', 'count' => $total_assets, 'class' => 'primary'],
+                    ['title' => 'Pending Requests', 'count' => $pending_requests, 'class' => 'warning'],
+                    ['title' => 'Red-Tagged Assets', 'count' => $red_tagged_assets, 'class' => 'danger'],
+                    ['title' => 'Low Stock Assets', 'count' => $low_stock_assets, 'class' => 'secondary']
+                ];
 
-<div class="d-flex">
-    <!-- Include Sidebar -->
-    <?php include '../includes/sidebar.php'; ?>
+                foreach ($cards as $card): ?>
+                    <div class="col-md-3">
+                        <div class="card text-bg-<?php echo $card['class']; ?> mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title"><?php echo $card['title']; ?></h5>
+                                <p class="card-text"><?php echo $card['count']; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
 
-    <!-- Main Content -->
-    <div class="container-fluid p-4">
-        <!-- Include Sidebar -->
-    <?php include '../includes/topbar.php'; ?>
-        <div class="row mt-3">
-            <!-- Summary Cards -->
-            <div class="col-md-3">
-                <div class="card text-bg-primary mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Assets</h5>
-                        <p class="card-text"><?php echo $total_assets; ?></p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Recent Activities</h5>
+                        </div>
+                        <div class="card-body p-3">
+                            <table class="table table-striped mb-0" id="activitiesTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Module</th>
+                                        <th>Activity</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($activities as $activity): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($activity['username']); ?></td>
+                                            <td><?php echo isset($activity['module']) ? htmlspecialchars($activity['module']) : 'N/A'; ?></td>
+                                            <td><?php echo htmlspecialchars($activity['activity']); ?></td>
+                                            <td><?php echo (new DateTime($activity['timestamp']))->format('M d, Y h:i A'); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-bg-warning mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Pending Requests</h5>
-                        <p class="card-text"><?php echo $pending_requests; ?></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-bg-danger mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Red-Tagged Assets</h5>
-                        <p class="card-text"><?php echo $red_tagged_assets; ?></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-bg-secondary mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Low Stock Assets</h5>
-                        <p class="card-text"><?php echo $low_stock_assets; ?></p>
+
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">Recent Inventory Actions</h5>
+                        </div>
+                        <div class="card-body p-3">
+                            <table class="table table-striped mb-0" id="inventoryActionsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Action Name</th>
+                                        <th>Category</th>
+                                        <th>Quantity</th>
+                                        <th>Action Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($recent_inventory_actions as $action): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($action['action_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($action['category']); ?></td>
+                                            <td><?php echo htmlspecialchars($action['quantity']); ?></td>
+                                            <td><?php echo (new DateTime($action['action_date']))->format('M d, Y h:i A'); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Recent Activities -->
-        <h3>Recent Activities</h3>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Activity</th>
-                    <th>Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($activities as $activity): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($activity['activity']); ?></td>
-                    <td><?php echo htmlspecialchars($activity['timestamp']); ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-
-        <!-- User Management -->
-        <h3>Manage Users</h3>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($users as $user): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($user['username']); ?></td>
-                    <td><?php echo htmlspecialchars($user['role']); ?></td>
-                    <td>
-                        <a href="edit_user.php?id=<?php echo $user['id']; ?>" class="btn btn-warning">Edit</a>
-                        <a href="delete_user.php?id=<?php echo $user['id']; ?>" class="btn btn-danger">Delete</a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-
     </div>
-</div>
+
+    <?php include '../includes/script.php'; ?>
+
 
 </body>
+
 </html>
-
-
-<?php include '../includes/script.php'; ?>

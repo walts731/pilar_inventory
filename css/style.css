@@ -5,3 +5,8 @@
 .d-none {
     transform: translateX(-100%);
 }
+
+.card-body {
+    max-height: 300px;
+    overflow-y: auto;
+}
