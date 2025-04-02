@@ -4,17 +4,20 @@ session_start();
 // Include database connection
 include('../connect.php');
 
-// Fetch all assets from the database
-$query = "SELECT a.id, a.asset_name, a.category, a.description, a.quantity, a.unit, a.status, a.acquisition_date, o.office_name 
+// Fetch all assets with their corresponding category names, category IDs, and values
+$query = "SELECT a.id, a.asset_name, c.id AS category_id, c.category_name, a.description, a.quantity, a.unit, a.value, a.status, a.acquisition_date, o.office_name 
           FROM assets a 
+          JOIN categories c ON a.category = c.id
           JOIN offices o ON a.office_id = o.id
           ORDER BY a.asset_name";
+
 $result = mysqli_query($conn, $query);
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,6 +27,7 @@ $result = mysqli_query($conn, $query);
   <!-- DataTables CSS -->
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
 </head>
+
 <body>
   <!-- Wrapper div for Sidebar and Content -->
   <div class="d-flex">
@@ -44,8 +48,14 @@ $result = mysqli_query($conn, $query);
 
         <!-- Action Buttons (Add New Asset and Manage Categories) -->
         <div class="d-flex justify-content-end mb-4">
-          <a href="add_asset.php" class="btn btn-primary me-2">Add New Asset</a>
-          <a href="manage_categories.php" class="btn btn-info">Manage Categories</a>
+          <!-- Add New Asset Button -->
+          <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAssetModal">
+            <i class="fas fa-plus"></i> Add New Asset
+          </a>
+          <!-- Manage Categories Button -->
+          <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            <i class="fas fa-cogs me-1"></i> Manage Categories
+          </a>
         </div>
 
         <!-- Overall Inventory Table -->
@@ -62,6 +72,7 @@ $result = mysqli_query($conn, $query);
                   <th>Description</th>
                   <th>Quantity</th>
                   <th>Unit</th>
+                  <th>Value</th>
                   <th>Status</th>
                   <th>Office</th>
                   <th>Action</th>
@@ -70,16 +81,21 @@ $result = mysqli_query($conn, $query);
               <tbody>
                 <?php while ($asset = mysqli_fetch_assoc($result)) { ?>
                   <tr>
-                    <td><?php echo $asset['asset_name']; ?></td>
-                    <td><?php echo $asset['category']; ?></td>
-                    <td><?php echo $asset['description']; ?></td>
-                    <td><?php echo $asset['quantity']; ?></td>
-                    <td><?php echo $asset['unit']; ?></td>
-                    <td><?php echo $asset['status']; ?></td>
-                    <td><?php echo $asset['office_name']; ?></td>
+                    <td><?php echo htmlspecialchars($asset['asset_name']); ?></td>
+                    <td><?php echo htmlspecialchars($asset['category_name']) ?></td>
+                    <td><?php echo htmlspecialchars($asset['description']); ?></td>
+                    <td><?php echo htmlspecialchars($asset['quantity']); ?></td>
+                    <td><?php echo htmlspecialchars($asset['unit']); ?></td>
+                    <td>₱<?php echo number_format($asset['value'], 2); ?></td>
+                    <td><?php echo htmlspecialchars($asset['status']); ?></td>
+                    <td><?php echo htmlspecialchars($asset['office_name']); ?></td>
                     <td>
-                      <a href="edit_asset.php?asset_id=<?php echo $asset['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                      <a href="delete_asset.php?asset_id=<?php echo $asset['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+                      <a href="edit_asset.php?asset_id=<?php echo $asset['id']; ?>" class="text-warning me-2" title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a href="delete_asset.php?asset_id=<?php echo $asset['id']; ?>" class="text-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this asset?');">
+                        <i class="fas fa-trash"></i>
+                      </a>
                     </td>
                   </tr>
                 <?php } ?>
@@ -90,6 +106,8 @@ $result = mysqli_query($conn, $query);
       </div>
     </div>
   </div>
+  <?php include '../modal/add_new_asset_modal.php'; ?>
+  <?php include '../modal/manage_categories_modal.php'; ?>
 
   <?php include '../includes/script.php'; ?>
 
@@ -106,4 +124,5 @@ $result = mysqli_query($conn, $query);
     });
   </script>
 </body>
+
 </html>
