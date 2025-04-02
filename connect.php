@@ -1,6 +1,6 @@
 <?php
 $host = "localhost";       // Database host (e.g., localhost)
-$dbname = "pilar_inventory"; // Database name
+$dbname = "inventory_pilar"; // Database name
 $db_user = "root"; // Database username
 $db_pass = ""; // Database password
 
