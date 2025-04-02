@@ -3,8 +3,37 @@
     <button class="toggle-sidebar btn btn-outline-dark" id="toggleSidebar">
         <i class="bi bi-list"></i>
     </button>
-    
-    <h5 class="mb-0">System Admin Dashboard</h5>
+
+    <!-- Dynamic Page Title -->
+    <h5 class="mb-0">
+        <?php
+            // Set dynamic title based on the current page
+            $currentPage = basename($_SERVER['PHP_SELF'], ".php");
+            if ($currentPage === 'dashboard') {
+                echo "System Admin Dashboard";
+            } elseif ($currentPage === 'assets') {
+                echo "Assets Management";
+            } elseif ($currentPage === 'profile') {
+                echo "User Profile";
+            } elseif ($currentPage === 'settings') {
+                echo "Settings";
+            } elseif ($currentPage === 'notifications') {
+                echo "Notifications";
+            } elseif ($currentPage === 'overall_inventory') {
+                echo "Overall Inventory";  // Title for overall inventory page
+            } elseif ($currentPage === 'office_inventory' && isset($_GET['office_id'])) {
+                // Fetch the office name based on the office_id passed in the URL
+                $officeId = $_GET['office_id'];
+                include('../connect.php');
+                $officeQuery = "SELECT office_name FROM offices WHERE id = $officeId";
+                $officeResult = mysqli_query($conn, $officeQuery);
+                $officeData = mysqli_fetch_assoc($officeResult);
+                echo "Assets Management > " . $officeData['office_name'];
+            } else {
+                echo "System Admin Dashboard"; // Default title
+            }
+        ?>
+    </h5>
 
     <div class="d-flex align-items-center">
         <div class="dropdown me-3">

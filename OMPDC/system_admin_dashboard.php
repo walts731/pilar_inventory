@@ -4,7 +4,7 @@ require '../connect.php'; // Database connection file
 
 // Ensure only Super Admin can access
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'super_admin') {
-    header('Location: login.php');
+    header('Location: index.php');
     exit();
 }
 
@@ -23,7 +23,7 @@ function fetch_count($conn, $query, $param_types = '', $params = [])
 $total_assets = fetch_count($conn, "SELECT COUNT(*) AS total FROM assets");
 $pending_requests = fetch_count($conn, "SELECT COUNT(*) AS total FROM asset_requests WHERE status='pending'");
 $red_tagged_assets = fetch_count($conn, "SELECT COUNT(*) AS total FROM assets WHERE status='red-tagged'");
-$low_stock_assets = fetch_count($conn, "SELECT COUNT(*) AS total FROM assets WHERE stock <= 5");
+$low_stock_assets = fetch_count($conn, "SELECT COUNT(*) AS total FROM assets WHERE quantity <= 5");
 
 // Fetch recent activities (actions related to inventory such as adding, borrowing, transferring)
 $activities_query = "
