@@ -17,6 +17,32 @@
                 echo "User Profile";
             } elseif ($currentPage === 'settings') {
                 echo "Settings";
+            } elseif ($currentPage === 'requests') {
+                echo "Asset Requests";
+            } elseif ($currentPage === 'asset_categories') {
+                echo "Asset Categories";
+            } elseif ($currentPage === 'users') {
+                echo "Users Management";
+            } elseif ($currentPage === 'offices') {
+                echo "Offices Management";
+            } elseif ($currentPage === 'reports') {
+                echo "Reports";
+            } elseif ($currentPage === 'audit_trail') {
+                echo "Audit Trail";
+            } elseif ($currentPage === 'user_roles') {
+                echo "User Roles Management";
+            } elseif ($currentPage === 'user_permissions') {
+                echo "User Permissions Management";
+            } elseif ($currentPage === 'asset_requests_history') {
+                echo "Asset Requests History";
+            } elseif ($currentPage === 'asset_requests_approval') {
+                echo "Asset Requests Approval";
+            } elseif ($currentPage === 'asset_requests_rejected') {
+                echo "Rejected Asset Requests";
+            } elseif ($currentPage === 'asset_requests_approved') {
+                echo "Approved Asset Requests";
+            } elseif ($currentPage === 'asset_requests_pending') {
+                echo "Pending Asset Requests";
             } elseif ($currentPage === 'notifications') {
                 echo "Notifications";
             } elseif ($currentPage === 'overall_inventory') {

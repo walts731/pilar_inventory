@@ -28,6 +28,21 @@ JOIN offices o ON ar.office_id = o.id
 ";
 $result = $conn->query($sql);
 
+function getBadgeClass($status)
+{
+  switch ($status) {
+    case 'approved':
+      return 'bg-success';  // Green badge for approved
+    case 'pending':
+      return 'bg-warning text-dark'; // Yellow badge for pending
+    case 'rejected':
+      return 'bg-danger'; // Red badge for rejected
+    default:
+      return 'bg-secondary'; // Gray for unknown status
+  }
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -39,6 +54,13 @@ $result = $conn->query($sql);
   <title>Asset Requests</title>
   <?php include '../includes/links.php'; ?>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+  <style>
+    .badge-status {
+      display: inline-block;
+      width: auto;
+      margin-right: 10px;
+    }
+  </style>
 </head>
 
 <body>
@@ -61,14 +83,15 @@ $result = $conn->query($sql);
               <thead class="table-light">
                 <tr>
                   <th>Asset Name</th>
-                  <th>Requested By</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Request Date</th>
+                  <th>Description</th>
                   <th>Quantity</th>
                   <th>Unit</th>
-                  <th>Description</th>
                   <th>Requesting Office</th>
+                  <th>Requested By</th>
+                  <th>Role</th>
+                  <th>Request Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -77,14 +100,28 @@ $result = $conn->query($sql);
                   while ($row = $result->fetch_assoc()) {
                     echo "<tr>";
                     echo "<td>" . $row['asset_name'] . "</td>";
-                    echo "<td>" . $row['fullname'] . "</td>";
-                    echo "<td>" . $row['role'] . "</td>";
-                    echo "<td>" . $row['status'] . "</td>";
-                    echo "<td>" . $row['request_date'] . "</td>";
+                    echo "<td>" . $row['description'] . "</td>";
                     echo "<td>" . $row['quantity'] . "</td>";
                     echo "<td>" . $row['unit'] . "</td>";
-                    echo "<td>" . $row['description'] . "</td>";
                     echo "<td>" . $row['office_name'] . "</td>";
+                    echo "<td>" . $row['fullname'] . "</td>";
+                    echo "<td><span class='badge " . ($row['role'] == 'admin' ? 'bg-primary' : 'bg-secondary') . "'>{$row['role']}</span></td>";
+                    echo "<td>" . date("M j, Y", strtotime($row['request_date'])) . "</td>";
+                    echo "<td><span class='badge " . getBadgeClass($row['status']) . "'>" . $row['status'] . "</span></td>";
+                    echo "<td>
+                            <form action='update_status.php' method='POST' class='d-inline'>
+                              <input type='hidden' name='request_id' value='{$row['request_id']}'>
+                              <button type='submit' name='status' value='Approved' class='btn btn-success btn-sm'>
+                                <i class='fas fa-check'></i>
+                              </button>
+                            </form>
+                            <form action='update_status.php' method='POST' class='d-inline'>
+                              <input type='hidden' name='request_id' value='{$row['request_id']}'>
+                              <button type='submit' name='status' value='Rejected' class='btn btn-danger btn-sm'>
+                                <i class='fas fa-times'></i>
+                              </button>
+                            </form>
+                          </td>";
                     echo "</tr>";
                   }
                 } else {
