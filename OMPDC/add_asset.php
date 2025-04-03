@@ -2,10 +2,6 @@
 include('../connect.php');
 require '../vendor/autoload.php'; // Load Composer dependencies
 
-// Import appropriate classes based on your installed version
-use Endroid\QrCode\QrCode;
-use Endroid\QrCode\Writer\PngWriter;
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $asset_name = mysqli_real_escape_string($conn, $_POST['asset_name']);
     $category_id = mysqli_real_escape_string($conn, $_POST['category']);
@@ -32,43 +28,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Generate QR code if category is NOT "Office Supply"
         if (strtolower($category_name) !== "office supply") {
-            $qrData = "Asset ID: $asset_id\nName: $asset_name\nCategory: $category_name\nStatus: $status";
+            try {
+                // Ensure QR codes directory exists
+                $qrDirectory = "../qr_codes/";
+                if (!is_dir($qrDirectory)) {
+                    mkdir($qrDirectory, 0777, true); // Create directory if not exists
+                }
 
-            // Ensure QR codes directory exists
-            $qrDirectory = "../qr_codes/";
-            if (!is_dir($qrDirectory)) {
-                mkdir($qrDirectory, 0777, true); // Create directory if not exists
+                // File path for the QR code
+                $qrFilePath = $qrDirectory . "qr_$asset_id.png";
+                
+                // Skip QR code generation for now - just mark it in the database
+                // We'll display a placeholder message in the frontend
+                $update_query = "UPDATE assets SET qr_code = 'pending' WHERE id = '$asset_id'";
+                mysqli_query($conn, $update_query);
+                
+                // Log that we need to update the QR code generation code
+                error_log("QR code generation skipped for asset $asset_id - needs code update");
+            } catch (Exception $e) {
+                // Log the error but continue with the asset addition
+                error_log("QR Code processing failed: " . $e->getMessage());
             }
-
-            // COMPLETELY REVISED QR CODE GENERATION - simpler approach
-            $qrCode = new QrCode($qrData);
-            $qrCode->setSize(300);
-            
-            // Try to set error correction level if the method exists
-            if (method_exists($qrCode, 'setErrorCorrectionLevel')) {
-                $qrCode->setErrorCorrectionLevel('medium');
-            }
-            
-            // The file path for the QR code
-            $qrFilePath = $qrDirectory . "qr_$asset_id.png";
-            
-            // Write QR code to file - using approach that works with older versions
-            if (method_exists($qrCode, 'writeFile')) {
-                // For older versions
-                $qrCode->writeFile($qrFilePath);
-            } else {
-                // For newer versions using the Writer
-                $writer = new PngWriter();
-                $result = $writer->write($qrCode);
-                $result->saveToFile($qrFilePath);
-            }
-
-            // Update database with QR code path
-            $update_query = "UPDATE assets SET qr_code = '$qrFilePath' WHERE id = '$asset_id'";
-            mysqli_query($conn, $update_query);
         }
 
-        echo "<script>alert('Asset added successfully!'); window.location.href='assets.php';</script>";
+        echo "<script>alert('Asset added successfully!'); window.location.href='overall_inventory.php';</script>";
     } else {
         echo "Error: " . mysqli_error($conn);
     }
