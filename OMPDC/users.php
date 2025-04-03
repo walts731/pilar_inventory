@@ -18,12 +18,44 @@ if (isset($_GET['office_id'])) {
     }
 
     // Fetch users belonging to this office
-    $stmt = $conn->prepare("SELECT id, username, fullname, email, role FROM users WHERE office_id = ?");
+    $stmt = $conn->prepare("SELECT id, username, fullname, email, role, status FROM users WHERE office_id = ?");
     $stmt->bind_param("i", $office_id);
     $stmt->execute();
     $user_result = $stmt->get_result();
 } else {
     echo "No office selected.";
+    exit;
+}
+
+// Handle status change (inactive or active)
+if (isset($_GET['change_status']) && isset($_GET['user_id'])) {
+    $user_id = $_GET['user_id'];
+    $new_status = $_GET['change_status'];
+
+    // Update user status
+    $stmt = $conn->prepare("UPDATE users SET status = ? WHERE id = ?");
+    $stmt->bind_param("si", $new_status, $user_id);
+    $stmt->execute();
+
+    // Redirect to the same page to refresh user status
+    header("Location: users.php?office_id=" . $office_id);
+    exit;
+}
+
+// Handle user update form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user_id'])) {
+    $user_id = $_POST['edit_user_id'];
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $role = $_POST['role'];
+
+    // Update the user's information
+    $stmt = $conn->prepare("UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?");
+    $stmt->bind_param("sssi", $username, $email, $role, $user_id);
+    $stmt->execute();
+
+    // Redirect to the same page to refresh the list of users
+    header("Location: users.php?office_id=" . $office_id);
     exit;
 }
 ?>
@@ -43,7 +75,8 @@ if (isset($_GET['office_id'])) {
         }
 
         .card-body {
-            overflow-y: auto; /* Add scrolling only in the card-body if necessary */
+            overflow-y: auto;
+            /* Add scrolling only in the card-body if necessary */
         }
     </style>
 </head>
@@ -55,6 +88,11 @@ if (isset($_GET['office_id'])) {
             <?php include '../includes/topbar.php'; ?>
 
             <div class="container mt-5">
+                <!-- Back Button -->
+                <div class="container mt-3 mb-3">
+                    <a href="create_office.php" class="btn btn-secondary">Back to Office Creation</a>
+                </div>
+
                 <div class="row">
                     <!-- Column 1: Add New User Form -->
                     <div class="col-md-4">
@@ -100,24 +138,69 @@ if (isset($_GET['office_id'])) {
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>Username</th>
+                                            <th>Fullname</th>
                                             <th>Email</th>
                                             <th>Role</th>
+                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php while ($row = $user_result->fetch_assoc()) { ?>
                                             <tr>
-                                                <td><?php echo htmlspecialchars($row['username']); ?></td>
+                                                <td><?php echo htmlspecialchars($row['fullname']); ?></td>
                                                 <td><?php echo htmlspecialchars($row['email']); ?></td>
-                                                <td><?php echo htmlspecialchars($row['role']); ?></td>
                                                 <td>
-                                                    <a href="edit_user.php?id=<?php echo $row['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                                                    <a href="delete_user.php?id=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+                                                    <?php
+                                                    $role = htmlspecialchars($row['role']);
+                                                    // Add badge based on the role
+                                                    if ($role == 'admin') {
+                                                        echo '<span class="badge bg-primary">' . $role . '</span>';
+                                                    } else if ($role == 'user') {
+                                                        echo '<span class="badge bg-secondary">' . $role . '</span>';
+                                                    } else {
+                                                        echo '<span class="badge bg-light text-dark">' . $role . '</span>';
+                                                    }
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $status = htmlspecialchars($row['status']);
+                                                    // Add badge based on the status
+                                                    if ($status == 'active') {
+                                                        echo '<span class="badge bg-success">' . $status . '</span>';
+                                                    } else if ($status == 'inactive') {
+                                                        echo '<span class="badge bg-danger">' . $status . '</span>';
+                                                    } else {
+                                                        echo '<span class="badge bg-warning text-dark">' . $status . '</span>';
+                                                    }
+                                                    ?>
+                                                </td>
+
+                                                <td>
+                                                    <!-- Edit Icon -->
+                                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $row['id']; ?>">
+                                                        <i class="bi bi-pencil-square"></i> Edit
+                                                    </button>
+
+                                                    <!-- Status Toggle Button -->
+                                                    <?php if ($row['role'] != 'super_admin') { ?>
+                                                        <?php if ($row['status'] == 'active') { ?>
+                                                            <a href="?office_id=<?php echo $office_id; ?>&user_id=<?php echo $row['id']; ?>&change_status=inactive" class="btn btn-warning btn-sm">Deactivate</a>
+                                                        <?php } else { ?>
+                                                            <a href="?office_id=<?php echo $office_id; ?>&user_id=<?php echo $row['id']; ?>&change_status=active" class="btn btn-success btn-sm">Activate</a>
+                                                        <?php } ?>
+                                                    <?php } else { ?>
+                                                        <!-- If user is super_admin, show a message instead of Deactivate option -->
+                                                        <button class="btn btn-secondary btn-sm" disabled>Cannot Deactivate</button>
+                                                    <?php } ?>
                                                 </td>
                                             </tr>
+
+                                            <!-- Edit Modal -->
+                                            <?php include '../modal/edit_user_modal.php'; ?>
                                         <?php } ?>
+
                                     </tbody>
                                 </table>
                             </div>
@@ -131,5 +214,3 @@ if (isset($_GET['office_id'])) {
 </body>
 
 </html>
-
-

@@ -23,7 +23,7 @@
                 echo "Asset Categories";
             } elseif ($currentPage === 'users') {
                 echo "Users Management";
-            } elseif ($currentPage === 'offices') {
+            } elseif ($currentPage === 'create_office') {
                 echo "Offices Management";
             } elseif ($currentPage === 'reports') {
                 echo "Reports";
