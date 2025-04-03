@@ -78,44 +78,18 @@
         });
     });
 
-    $(document).ready(function() {
-        $('#addAssetModal').on('show.bs.modal', function() {
-            fetchCategories();
-            fetchOffices();
-        });
-
-        function fetchCategories() {
-            $.ajax({
-                url: "fetch_categories_for_add.php",
-                type: "GET",
-                success: function(data) {
-                    $("#category").html('<option value="">Select Category</option>' + data);
-                }
-            });
-        }
-
-        function fetchOffices() {
-            $.ajax({
-                url: "fetch_offices.php",
-                type: "GET",
-                success: function(data) {
-                    $("#office").html('<option value="">Select Office</option>' + data);
-                }
-            });
-        }
-
-        $("#addAssetForm").submit(function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: "add_asset.php",
-                type: "POST",
-                data: $("#addAssetForm").serialize(),
-                success: function(response) {
-                    alert(response);
-                    $('#addAssetModal').modal('hide');
-                    $("#addAssetForm")[0].reset();
-                }
-            });
-        });
+    $(document).ready(function () {
+    $('#category').change(function () {
+      var selectedCategory = $("#category option:selected").text().toLowerCase();
+      
+      if (selectedCategory !== "office supply") {
+        var qrText = "Asset Name: " + $('#asset_name').val() + "\nCategory: " + selectedCategory;
+        var qrURL = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" + encodeURIComponent(qrText);
+        $("#qrCodePreview").html('<img src="' + qrURL + '" alt="QR Code">');
+        $("#qrCodeContainer").show();
+      } else {
+        $("#qrCodeContainer").hide();
+      }
     });
+  });
 </script>

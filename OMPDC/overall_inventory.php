@@ -49,7 +49,7 @@ $result = mysqli_query($conn, $query);
         <!-- Action Buttons (Add New Asset and Manage Categories) -->
         <div class="d-flex justify-content-end mb-4">
           <!-- Add New Asset Button -->
-          <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAssetModal">
+          <a href="#" class="btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#addAssetModal">
             <i class="fas fa-plus"></i> Add New Asset
           </a>
           <!-- Manage Categories Button -->
@@ -75,6 +75,7 @@ $result = mysqli_query($conn, $query);
                   <th>Value</th>
                   <th>Status</th>
                   <th>Office</th>
+                  <th>QR Code</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -90,11 +91,15 @@ $result = mysqli_query($conn, $query);
                     <td><?php echo htmlspecialchars($asset['status']); ?></td>
                     <td><?php echo htmlspecialchars($asset['office_name']); ?></td>
                     <td>
+                      <?php if (!empty($asset['qr_code'])) { ?>
+                        <img src="<?php echo $asset['qr_code']; ?>" alt="QR Code" width="50">
+                      <?php } else { ?>
+                        <span class="text-muted">No QR Code</span>
+                      <?php } ?>
+                    </td>
+                    <td>
                       <a href="edit_asset.php?asset_id=<?php echo $asset['id']; ?>" class="text-warning me-2" title="Edit">
                         <i class="fas fa-edit"></i>
-                      </a>
-                      <a href="delete_asset.php?asset_id=<?php echo $asset['id']; ?>" class="text-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this asset?');">
-                        <i class="fas fa-trash"></i>
                       </a>
                     </td>
                   </tr>
@@ -106,7 +111,7 @@ $result = mysqli_query($conn, $query);
       </div>
     </div>
   </div>
-  <?php include '../modal/add_new_asset_modal.php'; ?>
+  <?php include '../modal/add_asset_modal.php'; ?>
   <?php include '../modal/manage_categories_modal.php'; ?>
 
   <?php include '../includes/script.php'; ?>
