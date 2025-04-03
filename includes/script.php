@@ -92,4 +92,64 @@
       }
     });
   });
+
+  $(document).ready(function() {
+  // Handle edit button click
+  $('.edit-asset').click(function() {
+    var assetId = $(this).data('asset-id');
+    loadAssetData(assetId);
+  });
+
+  // Load asset data
+  function loadAssetData(assetId) {
+    $.ajax({
+      url: 'get_asset_data.php',
+      type: 'GET',
+      data: { asset_id: assetId },
+      dataType: 'json',
+      success: function(response) {
+        if (response.success) {
+          $('#edit_asset_id').val(response.data.id);
+          $('#edit_asset_name').val(response.data.asset_name);
+          $('#edit_description').val(response.data.description);
+          $('#edit_quantity').val(response.data.quantity);
+          $('#edit_unit').val(response.data.unit);
+          $('#edit_value').val(response.data.value);
+          $('#edit_status').val(response.data.status);
+          $('#edit_office').val(response.data.office_id);
+          $('#edit_category').val(response.data.category);
+          $('#edit_acquisition_date').val(response.data.acquisition_date);
+        } else {
+          alert('Error: ' + response.message);
+        }
+      },
+      error: function() {
+        alert('Error loading asset data');
+      }
+    });
+  }
+
+  // Save changes
+  $('#saveAssetChanges').click(function() {
+    var formData = $('#editAssetForm').serialize();
+    
+    $.ajax({
+      url: 'update_asset.php',
+      type: 'POST',
+      data: formData,
+      dataType: 'json',
+      success: function(response) {
+        if (response.success) {
+          alert('Asset updated successfully');
+          location.reload(); // Refresh the page
+        } else {
+          alert('Error: ' + response.message);
+        }
+      },
+      error: function() {
+        alert('Error saving changes');
+      }
+    });
+  });
+});
 </script>

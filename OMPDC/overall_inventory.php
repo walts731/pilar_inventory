@@ -98,7 +98,11 @@ $result = mysqli_query($conn, $query);
                       <?php } ?>
                     </td>
                     <td>
-                      <a href="edit_asset.php?asset_id=<?php echo $asset['id']; ?>" class="text-warning me-2" title="Edit">
+                      <a href="#" class="text-warning me-2 edit-asset"
+                        title="Edit"
+                        data-asset-id="<?php echo $asset['id']; ?>"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editAssetModal">
                         <i class="fas fa-edit"></i>
                       </a>
                     </td>
@@ -111,6 +115,7 @@ $result = mysqli_query($conn, $query);
       </div>
     </div>
   </div>
+  <?php include '../modal/edit_asset_modal.php'; ?>
   <?php include '../modal/add_asset_modal.php'; ?>
   <?php include '../modal/manage_categories_modal.php'; ?>
 
