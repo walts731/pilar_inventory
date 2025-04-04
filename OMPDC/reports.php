@@ -12,10 +12,15 @@ $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $office_filter = isset($_GET['office']) ? $_GET['office'] : '';
+$category_filter = isset($_GET['category']) ? $_GET['category'] : '';
 
 // Fetch offices for the filter dropdown
 $offices_query = "SELECT id, office_name FROM offices";
 $offices_result = $conn->query($offices_query);
+
+// Fetch categories for the filter dropdown
+$categories_query = "SELECT id, category_name FROM categories";
+$categories_result = $conn->query($categories_query);
 
 // Fetch filtered assets
 $query = "SELECT assets.id, assets.asset_name, categories.category_name, assets.description, 
@@ -23,12 +28,16 @@ $query = "SELECT assets.id, assets.asset_name, categories.category_name, assets.
           FROM assets 
           JOIN categories ON assets.category = categories.id 
           JOIN offices ON assets.office_id = offices.id 
-          WHERE 1"; 
+          WHERE 1";
 
 $params = [];
 if (!empty($status_filter)) {
     $query .= " AND assets.status = ?";
     $params[] = $status_filter;
+}
+if (!empty($category_filter)) {
+    $query .= " AND assets.category = ?";
+    $params[] = $category_filter;
 }
 if (!empty($start_date) && !empty($end_date)) {
     $query .= " AND assets.acquisition_date BETWEEN ? AND ?";
@@ -71,7 +80,18 @@ $result = $stmt->get_result();
                 <!-- Filter Form -->
                 <form method="GET" class="mb-4">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <label>Category:</label>
+                            <select name="category" class="form-control">
+                                <option value="">All</option>
+                                <?php while ($category = $categories_result->fetch_assoc()): ?>
+                                    <option value="<?= $category['id'] ?>" <?= $category_filter == $category['id'] ? 'selected' : '' ?>>
+                                        <?= $category['category_name'] ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <label>Status:</label>
                             <select name="status" class="form-control">
                                 <option value="">All</option>
@@ -79,7 +99,7 @@ $result = $stmt->get_result();
                                 <option value="Unserviceable" <?= $status_filter == 'Unserviceable' ? 'selected' : '' ?>>Unserviceable</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label>Office:</label>
                             <select name="office" class="form-control">
                                 <option value="">All</option>
@@ -113,7 +133,6 @@ $result = $stmt->get_result();
                 <table id="assetsTable" class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Asset Name</th>
                             <th>Category</th>
                             <th>Description</th>
@@ -126,14 +145,13 @@ $result = $stmt->get_result();
                     <tbody>
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td><?= $row['id'] ?></td>
                                 <td><?= $row['asset_name'] ?></td>
                                 <td><?= $row['category_name'] ?></td>
                                 <td><?= $row['description'] ?></td>
                                 <td><?= $row['quantity'] ?></td>
                                 <td><?= $row['status'] ?></td>
                                 <td><?= $row['office_name'] ?></td>
-                                <td><?= $row['acquisition_date'] ?></td>
+                                <td><?= date("M j, Y", strtotime($row['acquisition_date'])) ?></td>                                
                             </tr>
                         <?php endwhile; ?>
                     </tbody>
@@ -146,7 +164,7 @@ $result = $stmt->get_result();
     <?php include '../includes/script.php'; ?>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('#assetsTable').DataTable();
         });
     </script>

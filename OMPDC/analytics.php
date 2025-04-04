@@ -1,109 +1,162 @@
 <?php
 session_start();
+include '../connect.php';
 
-// Check if office_id is set in the URL
-if (!isset($_GET['office_id'])) {
-    // If not set, redirect to the main page or show an error message
-    header('Location: assets_management.php');
-    exit();
+// Asset Summary
+$summary = [
+  'total_assets' => 0,
+  'total_quantity' => 0,
+  'red_tagged' => 0,
+];
+
+$summaryQuery = "SELECT 
+  COUNT(*) AS total_assets, 
+  SUM(quantity) AS total_quantity, 
+  SUM(CASE WHEN red_tagged = 1 THEN 1 ELSE 0 END) AS red_tagged
+  FROM assets";
+$summaryResult = $conn->query($summaryQuery);
+if ($summaryResult && $row = $summaryResult->fetch_assoc()) {
+  $summary = $row;
 }
 
-$officeId = $_GET['office_id'];
+// Assets Acquired Per Month
+$monthlyData = [];
+$monthQuery = "SELECT 
+  DATE_FORMAT(acquisition_date, '%Y-%m') AS month,
+  COUNT(*) AS total
+  FROM assets
+  GROUP BY month
+  ORDER BY month ASC";
+$monthResult = $conn->query($monthQuery);
+while ($row = $monthResult->fetch_assoc()) {
+  $monthlyData[] = $row;
+}
 
-// Assuming you are fetching data from the database
-include('../connect.php');
+// Asset Status Distribution
+$statusData = [];
+$statusQuery = "SELECT status, COUNT(*) AS count FROM assets GROUP BY status";
+$statusResult = $conn->query($statusQuery);
+while ($row = $statusResult->fetch_assoc()) {
+  $statusData[$row['status']] = $row['count'];
+}
 
-// Query to fetch office details
-$officeQuery = "SELECT office_name FROM offices WHERE id = $officeId";
-$officeResult = mysqli_query($conn, $officeQuery);
-$officeData = mysqli_fetch_assoc($officeResult);
+// Fill in 0 for any missing statuses
+$allStatuses = ['available', 'in use', 'disposed', 'unserviceable', 'maintenance'];
+foreach ($allStatuses as $status) {
+  if (!isset($statusData[$status])) {
+    $statusData[$status] = 0;
+  }
+}
 
-// Query to fetch assets for the specific office (updated query)
-$officeInventoryQuery = "SELECT id, asset_name, category, description, quantity, unit, status, acquisition_date, red_tagged, last_updated FROM assets WHERE office_id = $officeId";
-$officeInventoryResult = mysqli_query($conn, $officeInventoryQuery);
+// Assets by Category
+$categoryData = [];
+$categoryQuery = "SELECT c.category_name, COUNT(a.id) AS total 
+                  FROM assets a 
+                  JOIN categories c ON a.category = c.id 
+                  GROUP BY c.category_name 
+                  ORDER BY total DESC";
+$categoryResult = $conn->query($categoryQuery);
+while ($row = $categoryResult->fetch_assoc()) {
+  $categoryData[$row['category_name']] = $row['total'];
+}
+
+// Asset Value Per Month
+$valuePerMonthData = [];
+$valueQuery = "SELECT 
+  DATE_FORMAT(acquisition_date, '%Y-%m') AS month,
+  SUM(value * quantity) AS total_value
+  FROM assets
+  GROUP BY month
+  ORDER BY month ASC";
+$valueResult = $conn->query($valueQuery);
+while ($row = $valueResult->fetch_assoc()) {
+  $valuePerMonthData[] = $row;
+}
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Office Inventory - <?php echo $officeData['office_name']; ?></title>
-  <?php include '../includes/links.php'; ?>
-  
-  <!-- DataTables CSS -->
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
-</head>
-<body>
-  <!-- Wrapper div for Sidebar and Content -->
-  <div class="d-flex">
 
-    <!-- Include Sidebar -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics</title>
+  <?php include '../includes/links.php'; ?>
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" />
+</head>
+
+<body>
+
+  <div class="d-flex">
+    <!-- Sidebar -->
     <?php include '../includes/sidebar.php'; ?>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <div class="container-fluid">
-      <!-- Include Topbar -->
       <?php include '../includes/topbar.php'; ?>
 
-      <!-- Main Content Section -->
       <div class="container mt-5">
-        <!-- Back Button -->
-        <div class="d-flex justify-content-start mb-4">
-          <a href="assets.php" class="btn btn-secondary">Back to Assets Management</a>
-        </div>
-
-        <!-- Office Inventory Header -->
-        <h2>Inventory for <?php echo $officeData['office_name']; ?></h2>
-
-        <!-- Action Buttons (Add New Asset and Manage Categories) -->
-        <div class="d-flex justify-content-end mb-4">
-          <a href="add_asset.php?office_id=<?php echo $officeId; ?>" class="btn btn-primary me-2">Add New Asset</a>
-          <a href="manage_categories.php" class="btn btn-secondary">Manage Categories</a>
-        </div>
-
-        <!-- Office Inventory Table -->
-        <div class="card mb-4">
-          <div class="card-header">
-            Assets for Office: <?php echo $officeData['office_name']; ?>
+        <h3 class="mb-4">Assets Summary</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Total Assets</h5>
+                <p class="card-text display-6"><?= $summary['total_assets'] ?></p>
+              </div>
+            </div>
           </div>
-          <div class="card-body">
-            <table class="table table-striped" id="officeInventoryTable">
-              <thead>
-                <tr>
-                  <th>Asset Name</th>
-                  <th>Category</th>
-                  <th>Description</th>
-                  <th>Quantity</th>
-                  <th>Unit</th>
-                  <th>Status</th>
-                  <th>Acquisition Date</th>
-                  <th>Red Tagged</th>
-                  <th>Last Updated</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php while ($asset = mysqli_fetch_assoc($officeInventoryResult)) { ?>
-                  <tr>
-                    <td><?php echo $asset['asset_name']; ?></td>
-                    <td><?php echo $asset['category']; ?></td>
-                    <td><?php echo $asset['description']; ?></td>
-                    <td><?php echo $asset['quantity']; ?></td>
-                    <td><?php echo $asset['unit']; ?></td>
-                    <td><?php echo $asset['status']; ?></td>
-                    <td><?php echo $asset['acquisition_date']; ?></td>
-                    <td><?php echo $asset['red_tagged'] ? 'Yes' : 'No'; ?></td>
-                    <td><?php echo $asset['last_updated']; ?></td>
-                    
-                  </tr>
-                <?php } ?>
-              </tbody>
-            </table>
+          <div class="col-md-4">
+            <div class="card text-white bg-danger mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Red Tagged Assets</h5>
+                <p class="card-text display-6"><?= $summary['red_tagged'] ?></p>
+              </div>
+            </div>
           </div>
         </div>
+
+        <div class="row mt-5">
+          <!-- Pie Chart -->
+          <div class="col-md-3 d-flex flex-column align-items-center">
+            <h5 class="text-center">Asset Status Distribution</h5>
+            <div style="width: 200px; height: 200px;">
+              <canvas id="statusPieChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Monthly Acquisitions Bar Chart -->
+          <div class="col-md-3">
+            <h5 class="text-center">Assets Acquired Per Month</h5>
+            <div style="height: 300px;">
+              <canvas id="monthlyAssetsChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Assets by Category Horizontal Bar Chart -->
+          <div class="col-md-3">
+            <h5 class="text-center">Assets by Category</h5>
+            <div style="height: 300px;">
+              <canvas id="categoryBarChart"></canvas>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <h5 class="text-center">Total Asset Value Acquired Per Month</h5>
+            <div style="height: 300px;">
+              <canvas id="valuePerMonthChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        
+
+
       </div>
     </div>
-
   </div>
 
   <?php include '../includes/script.php'; ?>
@@ -112,13 +165,159 @@ $officeInventoryResult = mysqli_query($conn, $officeInventoryQuery);
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
   <!-- DataTables JS -->
-  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 
-  <!-- Initialize DataTables -->
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Pass PHP data to JS -->
   <script>
-    $(document).ready(function() {
-      $('#officeInventoryTable').DataTable(); // Apply DataTables on the office inventory table
+    const monthlyLabels = <?= json_encode(array_column($monthlyData, 'month')) ?>;
+    const monthlyCounts = <?= json_encode(array_column($monthlyData, 'total')) ?>;
+    const statusLabels = <?= json_encode(array_keys($statusData)) ?>;
+    const statusCounts = <?= json_encode(array_values($statusData)) ?>;
+    const categoryLabels = <?= json_encode(array_keys($categoryData)) ?>;
+    const categoryCounts = <?= json_encode(array_values($categoryData)) ?>;
+    const valueLabels = <?= json_encode(array_column($valuePerMonthData, 'month')) ?>;
+    const valueTotals = <?= json_encode(array_map('floatval', array_column($valuePerMonthData, 'total_value'))) ?>;
+  </script>
+
+  <!-- Chart Init -->
+  <script>
+    const ctxValue = document.getElementById('valuePerMonthChart').getContext('2d');
+    const valuePerMonthChart = new Chart(ctxValue, {
+      type: 'line',
+      data: {
+        labels: valueLabels,
+        datasets: [{
+          label: 'Total Value (₱)',
+          data: valueTotals,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Total Value (₱)'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Month'
+            }
+          }
+        }
+      }
+    });
+
+    const ctxCategory = document.getElementById('categoryBarChart').getContext('2d');
+    const categoryBarChart = new Chart(ctxCategory, {
+      type: 'bar',
+      data: {
+        labels: categoryLabels,
+        datasets: [{
+          label: 'Total Assets',
+          data: categoryCounts,
+          backgroundColor: 'rgba(255, 159, 64, 0.6)',
+          borderColor: 'rgba(255, 159, 64, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y', // Horizontal bar
+        responsive: true,
+        scales: {
+          x: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Number of Assets'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Category'
+            }
+          }
+        }
+      }
+    });
+
+    const ctxPie = document.getElementById('statusPieChart').getContext('2d');
+    const statusPieChart = new Chart(ctxPie, {
+      type: 'pie',
+      data: {
+        labels: statusLabels,
+        datasets: [{
+          label: 'Asset Status',
+          data: statusCounts,
+          backgroundColor: [
+            '#4CAF50', // available - green
+            '#2196F3', // in use - blue
+            '#9E9E9E', // disposed - grey
+            '#f44336', // unserviceable - red
+            '#FF9800' // maintenance - orange
+          ],
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right'
+          },
+          title: {
+            display: false
+          }
+        }
+      }
+    });
+
+    const ctx = document.getElementById('monthlyAssetsChart').getContext('2d');
+    const monthlyAssetsChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: monthlyLabels,
+        datasets: [{
+          label: 'Assets Acquired',
+          data: monthlyCounts,
+          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Number of Assets'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Month'
+            }
+          }
+        }
+      }
     });
   </script>
+
 </body>
+
 </html>
