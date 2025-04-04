@@ -16,7 +16,7 @@
         </li>
         <li>
             <a href="assets.php" class="nav-link <?php echo ($current_page == 'assets.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
-                <i class="bi bi-box me-2"></i> Manage Assets
+                <i class="bi bi-box me-2"></i> Assets Inventory
             </a>
         </li>
         <li>

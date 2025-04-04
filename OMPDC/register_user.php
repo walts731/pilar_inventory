@@ -2,21 +2,25 @@
 session_start();
 include('../connect.php');
 
-// Ensure the form data is posted and office_id is passed
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['office_id'])) {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash the password
-    $role = $_POST['role'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $office_id = $_POST['office_id'];
+    $username = $_POST['username'];
+    $fullname = $_POST['fullname'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $role = $_POST['role'];
 
-    // Insert the user into the database
-    $stmt = $conn->prepare("INSERT INTO users (username, email, password, role, office_id) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssi", $username, $email, $password, $role, $office_id);
+    // Insert user with office_id only (no office_name)
+    $stmt = $conn->prepare("INSERT INTO users (office_id, username, fullname, email, password, role, status) VALUES (?, ?, ?, ?, ?, ?, 'active')");
+    $stmt->bind_param("isssss", $office_id, $username, $fullname, $email, $password, $role);
+
     if ($stmt->execute()) {
-        header("Location: users.php?office_id=" . $office_id); // Redirect back to the users page for the selected office
+        header("Location: users.php?office_id=" . $office_id);
+        exit;
     } else {
         echo "Error: " . $stmt->error;
     }
+} else {
+    echo "Invalid request method.";
 }
 ?>

@@ -7,57 +7,61 @@
     <!-- Dynamic Page Title -->
     <h5 class="mb-0">
         <?php
-            // Set dynamic title based on the current page
+            // Determine current page
             $currentPage = basename($_SERVER['PHP_SELF'], ".php");
-            if ($currentPage === 'dashboard') {
-                echo "System Admin Dashboard";
-            } elseif ($currentPage === 'assets') {
-                echo "Assets Management";
-            } elseif ($currentPage === 'profile') {
-                echo "User Profile";
-            } elseif ($currentPage === 'settings') {
-                echo "Settings";
-            } elseif ($currentPage === 'requests') {
-                echo "Asset Requests";
-            } elseif ($currentPage === 'asset_categories') {
-                echo "Asset Categories";
-            } elseif ($currentPage === 'users') {
-                echo "Users Management";
-            } elseif ($currentPage === 'create_office') {
-                echo "Offices Management";
-            } elseif ($currentPage === 'reports') {
-                echo "Reports";
-            } elseif ($currentPage === 'audit_trail') {
-                echo "Audit Trail";
-            } elseif ($currentPage === 'user_roles') {
-                echo "User Roles Management";
-            } elseif ($currentPage === 'user_permissions') {
-                echo "User Permissions Management";
-            } elseif ($currentPage === 'asset_requests_history') {
-                echo "Asset Requests History";
-            } elseif ($currentPage === 'asset_requests_approval') {
-                echo "Asset Requests Approval";
-            } elseif ($currentPage === 'asset_requests_rejected') {
-                echo "Rejected Asset Requests";
-            } elseif ($currentPage === 'asset_requests_approved') {
-                echo "Approved Asset Requests";
-            } elseif ($currentPage === 'asset_requests_pending') {
-                echo "Pending Asset Requests";
-            } elseif ($currentPage === 'notifications') {
-                echo "Notifications";
-            } elseif ($currentPage === 'overall_inventory') {
-                echo "Overall Inventory";  // Title for overall inventory page
-            } elseif ($currentPage === 'office_inventory' && isset($_GET['office_id'])) {
-                // Fetch the office name based on the office_id passed in the URL
-                $officeId = $_GET['office_id'];
-                include('../connect.php');
+            $title = "";
+
+            switch ($currentPage) {
+                case 'dashboard': $title = "System Admin Dashboard"; break;
+                case 'assets': $title = "Assets Inventory"; break;
+                case 'profile': $title = "User Profile"; break;
+                case 'settings': $title = "Settings"; break;
+                case 'requests': $title = "Asset Requests"; break;
+                case 'asset_categories': $title = "Asset Categories"; break;
+                case 'users': $title = "Users Management"; break;
+                case 'create_office': $title = "Offices Management"; break;
+                case 'reports': $title = "Reports"; break;
+                case 'audit_trail': $title = "Audit Trail"; break;
+                case 'user_roles': $title = "User Roles Management"; break;
+                case 'user_permissions': $title = "User Permissions Management"; break;
+                case 'asset_requests_history': $title = "Asset Requests History"; break;
+                case 'asset_requests_approval': $title = "Asset Requests Approval"; break;
+                case 'asset_requests_rejected': $title = "Rejected Asset Requests"; break;
+                case 'asset_requests_approved': $title = "Approved Asset Requests"; break;
+                case 'asset_requests_pending': $title = "Pending Asset Requests"; break;
+                case 'notifications': $title = "Notifications"; break;
+                case 'overall_inventory': $title = "Overall Inventory"; break;
+                case 'office_inventory':
+                    if (isset($_GET['office_id'])) {
+                        include('../connect.php');
+                        $officeId = (int) $_GET['office_id'];
+                        $officeQuery = "SELECT office_name FROM offices WHERE id = $officeId";
+                        $officeResult = mysqli_query($conn, $officeQuery);
+                        if ($officeData = mysqli_fetch_assoc($officeResult)) {
+                            $title = "Assets Management > " . $officeData['office_name'];
+                        } else {
+                            $title = "Assets Management";
+                        }
+                    } else {
+                        $title = "Assets Management";
+                    }
+                    break;
+                default:
+                    $title = "System Admin Dashboard";
+            }
+
+            // Optional office name for specific pages (like users, assets, requests)
+            if (isset($_GET['office_id']) && in_array($currentPage, ['users', 'assets', 'requests'])) {
+                include_once('../connect.php');
+                $officeId = (int) $_GET['office_id'];
                 $officeQuery = "SELECT office_name FROM offices WHERE id = $officeId";
                 $officeResult = mysqli_query($conn, $officeQuery);
-                $officeData = mysqli_fetch_assoc($officeResult);
-                echo "Assets Management > " . $officeData['office_name'];
-            } else {
-                echo "System Admin Dashboard"; // Default title
+                if ($officeData = mysqli_fetch_assoc($officeResult)) {
+                    $title .= " > " . $officeData['office_name'];
+                }
             }
+
+            echo htmlspecialchars($title);
         ?>
     </h5>
 

@@ -104,6 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user_id'])) {
                                 <form action="register_user.php" method="POST">
                                     <input type="hidden" name="office_id" value="<?php echo $office_id; ?>">
                                     <div class="mb-3">
+                                        <label for="fullname" class="form-label">Full Name</label>
+                                        <input type="text" name="fullname" id="fullname" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="username" class="form-label">Username</label>
                                         <input type="text" name="username" id="username" class="form-control" required>
                                     </div>
