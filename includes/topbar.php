@@ -24,6 +24,7 @@
                 case 'audit_trail': $title = "Audit Trail"; break;
                 case 'user_roles': $title = "User Roles Management"; break;
                 case 'analytics': $title = "Analytics"; break;
+                case 'archive': $title = "Archives"; break;
                 case 'user_permissions': $title = "User Permissions Management"; break;
                 case 'asset_requests_history': $title = "Asset Requests History"; break;
                 case 'asset_requests_approval': $title = "Asset Requests Approval"; break;

@@ -73,6 +73,33 @@ while ($row = $valueResult->fetch_assoc()) {
   $valuePerMonthData[] = $row;
 }
 
+// Count Low Stock Items (e.g., quantity <= 3)
+$lowStockQuery = "SELECT COUNT(*) AS low_stock FROM assets WHERE quantity <= 3";
+$lowStockResult = $conn->query($lowStockQuery);
+$lowStock = 0;
+if ($lowStockResult && $row = $lowStockResult->fetch_assoc()) {
+  $lowStock = $row['low_stock'];
+}
+
+// Calculate Total Inventory Value (price × quantity)
+$valueQuery = "SELECT SUM(value * quantity) AS total_value FROM assets";
+$valueResult = $conn->query($valueQuery);
+$totalValue = 0;
+if ($valueResult && $row = $valueResult->fetch_assoc()) {
+  $totalValue = $row['total_value'];
+}
+
+// Get assets with low stock for restock suggestion
+$restockQuery = "SELECT asset_name, quantity, category FROM assets WHERE quantity < 5 ORDER BY quantity ASC";
+$restockResult = $conn->query($restockQuery);
+
+$restockSuggestions = [];
+if ($restockResult && $restockResult->num_rows > 0) {
+  while ($row = $restockResult->fetch_assoc()) {
+    $restockSuggestions[] = $row;
+  }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -101,7 +128,7 @@ while ($row = $valueResult->fetch_assoc()) {
       <div class="container mt-5">
         <h3 class="mb-4">Assets Summary</h3>
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="card text-white bg-primary mb-3">
               <div class="card-body">
                 <h5 class="card-title">Total Assets</h5>
@@ -109,11 +136,30 @@ while ($row = $valueResult->fetch_assoc()) {
               </div>
             </div>
           </div>
-          <div class="col-md-4">
+
+          <div class="col-md-3">
             <div class="card text-white bg-danger mb-3">
               <div class="card-body">
                 <h5 class="card-title">Red Tagged Assets</h5>
                 <p class="card-text display-6"><?= $summary['red_tagged'] ?></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Low Stock Items</h5>
+                <p class="card-text display-6"><?= $lowStock ?></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Total Inventory Value</h5>
+                <p class="card-text display-6">₱<?= number_format($totalValue, 2) ?></p>
               </div>
             </div>
           </div>
@@ -152,8 +198,38 @@ while ($row = $valueResult->fetch_assoc()) {
           </div>
         </div>
 
-        
-
+        <?php if (!empty($restockSuggestions)) : ?>
+  <div class="mt-1">
+    <h4>🛒 Restock Suggestions</h4>
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>Asset Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($restockSuggestions as $item) : ?>
+            <tr>
+              <td><?= htmlspecialchars($item['asset_name']) ?></td>
+              <td><?= htmlspecialchars($item['category']) ?></td>
+              <td><?= $item['quantity'] ?></td>
+              <td><?= $item['quantity'] == 0 ? 'Urgent Restock' : 'Consider Restocking' ?></td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<?php else : ?>
+  <div class="mt-1">
+    <h4>🛒 Restock Suggestions</h4>
+    <p class="text-muted">All stocks are sufficient at the moment.</p>
+  </div>
+<?php endif; ?>
 
       </div>
     </div>
