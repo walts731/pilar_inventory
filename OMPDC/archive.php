@@ -1,52 +1,56 @@
 <?php
 session_start();
-
-// Database connection
 include('../connect.php');
 
-// Fetch all offices for filter dropdown
+// Fetch offices and categories for filter dropdowns
 $officeQuery = $conn->query("SELECT id, office_name FROM offices ORDER BY office_name");
+$categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY category_name");
 
-// Handle filtering
+// Handle filters
 $officeId = $_GET['office'] ?? '';
 $startDate = $_GET['start_date'] ?? '';
 $endDate = $_GET['end_date'] ?? '';
+$status = $_GET['status'] ?? '';
+$categoryId = $_GET['category'] ?? '';
 
-// Base query for archives
-$sql = "SELECT a.*, o.office_name FROM archives a 
-        LEFT JOIN offices o ON a.office_id = o.id 
+// Base query
+$sql = "SELECT a.*, o.office_name, u.username 
+        FROM archives a 
+        LEFT JOIN offices o ON a.filter_office = o.id
+        LEFT JOIN users u ON a.user_id = u.id 
         WHERE 1=1";
-
 $params = [];
 
 if (!empty($officeId)) {
-    $sql .= " AND a.office_id = ?";
+    $sql .= " AND a.filter_office = ?";
     $params[] = $officeId;
 }
-
+if (!empty($categoryId)) {
+    $sql .= " AND a.filter_category = ?";
+    $params[] = $categoryId;
+}
+if (!empty($status)) {
+    $sql .= " AND a.filter_status = ?";
+    $params[] = $status;
+}
 if (!empty($startDate) && !empty($endDate)) {
-    $sql .= " AND DATE(a.uploaded_at) BETWEEN ? AND ?";
+    $sql .= " AND DATE(a.created_at) BETWEEN ? AND ?";
     $params[] = $startDate;
     $params[] = $endDate;
 }
 
-// Prepare the statement
+// Prepare and execute
 $stmt = $conn->prepare($sql);
-
-// Bind the parameters if they exist
 if (!empty($params)) {
-    $types = str_repeat('s', count($params)); // assuming all are strings for simplicity
+    $types = str_repeat('s', count($params));
     $stmt->bind_param($types, ...$params);
 }
-
-// Execute and get the result
 $stmt->execute();
 $result = $stmt->get_result();
-$files = [];
+$records = [];
 
-// Fetch all the rows from the result
 while ($row = $result->fetch_assoc()) {
-    $files[] = $row;
+    $records[] = $row;
 }
 ?>
 
@@ -55,115 +59,115 @@ while ($row = $result->fetch_assoc()) {
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archive Files</title>
+    <title>Archived Reports</title>
     <?php include '../includes/links.php'; ?>
-
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
 </head>
 
 <body>
-    <!-- Wrapper div for Sidebar and Content -->
-    <div class="d-flex">
+<div class="d-flex">
+    <?php include '../includes/sidebar.php'; ?>
+    <div class="container-fluid">
+        <?php include '../includes/topbar.php'; ?>
 
-        <!-- Include Sidebar -->
-        <?php include '../includes/sidebar.php'; ?>
+        <div class="container mt-5">
+            <h3 class="mb-4">📁 Archive Logs</h3>
 
-        <!-- Main Content Area -->
-        <div class="container-fluid">
-            <!-- Include Topbar -->
-            <?php include '../includes/topbar.php'; ?>
-
-            <div class="container mt-5">
-                <h3 class="mb-4">📁 Archive Files</h3>
-
-                <!-- Filter Form -->
-                <form method="GET" class="mb-4">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <select name="office" class="form-control">
-                                <option value="">All Offices</option>
-                                <?php
-                                while ($row = $officeQuery->fetch_assoc()) {
-                                    $selected = ($officeId == $row['id']) ? 'selected' : '';
-                                    echo "<option value='{$row['id']}' $selected>{$row['office_name']}</option>";
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="date" name="start_date" value="<?= htmlspecialchars($startDate) ?>" class="form-control">
-                        </div>
-                        <div class="col-md-3">
-                            <input type="date" name="end_date" value="<?= htmlspecialchars($endDate) ?>" class="form-control">
-                        </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                        </div>
+            <!-- Filter Form -->
+            <form method="GET" class="mb-4">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select name="office" class="form-control">
+                            <option value="">All Offices</option>
+                            <?php while ($row = $officeQuery->fetch_assoc()): ?>
+                                <option value="<?= $row['id'] ?>" <?= ($officeId == $row['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($row['office_name']) ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
                     </div>
-                </form>
+                    <div class="col-md-3">
+                        <select name="category" class="form-control">
+                            <option value="">All Categories</option>
+                            <?php while ($row = $categoryQuery->fetch_assoc()): ?>
+                                <option value="<?= $row['id'] ?>" <?= ($categoryId == $row['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($row['category_name']) ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="active" <?= $status == 'active' ? 'selected' : '' ?>>Active</option>
+                            <option value="inactive" <?= $status == 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                            <option value="damaged" <?= $status == 'damaged' ? 'selected' : '' ?>>Damaged</option>
+                            <option value="disposed" <?= $status == 'disposed' ? 'selected' : '' ?>>Disposed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="start_date" value="<?= htmlspecialchars($startDate) ?>" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="end_date" value="<?= htmlspecialchars($endDate) ?>" class="form-control">
+                    </div>
+                    <div class="col-md-2 mt-2 mt-md-0">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </div>
+            </form>
 
-                <?php
-                if (empty($files)) {
-                    echo "<p class='text-muted'>No archived files found.</p>";
-                } else {
-                    echo "<div class='table-responsive'>";
-                    echo "<table id='archiveTable' class='table table-bordered table-striped'>";
-                    echo "<thead class='table-dark'>
+            <?php if (empty($records)): ?>
+                <p class="text-muted">No archived exports found.</p>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table id="archiveTable" class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>User</th>
+                            <th>Office</th>
+                            <th>Status</th>
+                            <th>Category</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>File Name</th>
+                            <th>Action</th>
+                            <th>Date Exported</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($records as $row): ?>
                             <tr>
-                                <th>Filename</th>
-                                <th>Office</th>
-                                <th>File Type</th>
-                                <th>Size (KB)</th>
-                                <th>Last Modified</th>
-                                <th>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>";
-
-                    foreach ($files as $file) {
-                        $filePath = $file['file_path'];
-                        $fileExt = pathinfo($file['file_name'], PATHINFO_EXTENSION);
-                        $fileSize = filesize($filePath) / 1024; // Convert to KB
-                        $lastModified = date("F d, Y H:i:s", strtotime($file['uploaded_at']));
-
-                        echo "<tr>
-                                <td>{$file['file_name']}</td>
-                                <td>{$file['office_name']}</td>
-                                <td>{$fileExt}</td>
-                                <td>" . number_format($fileSize, 2) . "</td>
-                                <td>{$lastModified}</td>
+                                <td><?= htmlspecialchars($row['username']) ?></td>
+                                <td><?= htmlspecialchars($row['office_name'] ?? 'N/A') ?></td>
+                                <td><?= htmlspecialchars($row['filter_status'] ?? '-') ?></td>
+                                <td><?= htmlspecialchars($row['filter_category'] ?? '-') ?></td>
+                                <td><?= htmlspecialchars($row['filter_start_date'] ?? '-') ?></td>
+                                <td><?= htmlspecialchars($row['filter_end_date'] ?? '-') ?></td>
+                                <td><?= htmlspecialchars($row['file_name']) ?></td>
                                 <td>
-                                    <a href='{$filePath}' class='btn btn-sm btn-success' download>Download</a>
-                                    <a href='delete_file.php?file=" . urlencode($file['file_name']) . "' class='btn btn-sm btn-danger' onclick='return confirm(\"Are you sure to delete this file?\")'>Delete</a>
+                                    <a href="/exports/<?= urlencode($row['file_name']) ?>" 
+                                       class="btn btn-sm btn-success" download>Download</a>
+                                    
                                 </td>
-                              </tr>";
-                    }
-
-                    echo "</tbody></table></div>";
-                }
-                ?>
-
-            </div>
-
+                                <td><?= date("F d, Y H:i:s", strtotime($row['created_at'])) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
+</div>
 
-    <?php include '../includes/script.php'; ?>
-
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- DataTables JS -->
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-
-    <!-- Initialize DataTables -->
-    <script>
-        $(document).ready(function() {
-            $('#archiveTable').DataTable(); // Apply DataTables on the archive table
-        });
-    </script>
+<?php include '../includes/script.php'; ?>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#archiveTable').DataTable();
+    });
+</script>
 </body>
-
 </html>

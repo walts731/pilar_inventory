@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 require '../vendor/autoload.php';
 use Dompdf\Dompdf;
 
@@ -68,7 +70,19 @@ $timestamp = date('Ymd_His');
 $filename = "assets_report_{$timestamp}.pdf";
 file_put_contents("../archives/{$filename}", $dompdf->output());
 
+// Record archive action
+$insert_archive_query = "INSERT INTO archives (user_id, action_type, filter_status, filter_start_date, filter_end_date, file_name, created_at) 
+                         VALUES ('{$_SESSION['user_id']}', 'Export PDF', '{$status}', '{$start_date}', '{$end_date}', '{$filename}', NOW())";
+
+// Execute the query
+if ($conn->query($insert_archive_query) === TRUE) {
+    echo "Record inserted successfully!";
+} else {
+    echo "Error: " . $insert_archive_query . "<br>" . $conn->error;
+}
+
 // Stream to user
 $dompdf->stream($filename, ["Attachment" => 1]);
+
 exit();
 ?>
