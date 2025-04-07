@@ -152,4 +152,32 @@
     });
   });
 });
+
+// Handle the Red Tag button click event
+$(document).on('click', '.red-tag-asset', function() {
+  var assetId = $(this).data('asset-id');
+  $('#asset_id').val(assetId);  // Set the asset ID in the hidden input field
+});
+
+// Handle form submission for red tagging
+$('#redTagForm').on('submit', function(e) {
+  e.preventDefault();
+  
+  var assetId = $('#asset_id').val();
+  
+  // Send AJAX request to update the asset status
+  $.ajax({
+    url: 'red_tag_asset.php',
+    method: 'POST',
+    data: { asset_id: assetId },
+    success: function(response) {
+      alert(response);  // Notify the user
+      location.reload(); // Reload the page to reflect changes
+    },
+    error: function() {
+      alert('An error occurred while updating the asset status.');
+    }
+  });
+});
+
 </script>

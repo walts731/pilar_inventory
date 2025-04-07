@@ -98,14 +98,23 @@ $result = mysqli_query($conn, $query);
                       <?php } ?>
                     </td>
                     <td>
-                      <a href="#" class="text-warning me-2 edit-asset"
-                        title="Edit"
-                        data-asset-id="<?php echo $asset['id']; ?>"
-                        data-bs-toggle="modal"
-                        data-bs-target="#editAssetModal">
-                        <i class="fas fa-edit"></i>
-                      </a>
-                    </td>
+  <a href="#" class="text-warning me-2 edit-asset"
+     title="Edit"
+     data-asset-id="<?php echo $asset['id']; ?>"
+     data-bs-toggle="modal"
+     data-bs-target="#editAssetModal">
+     <i class="fas fa-edit"></i>
+  </a>
+  <!-- Red Tag Button -->
+  <a href="#" class="text-danger me-2 red-tag-asset"
+     title="Red Tag"
+     data-asset-id="<?php echo $asset['id']; ?>"
+     data-bs-toggle="modal"
+     data-bs-target="#redTagModal">
+     <i class="fas fa-times-circle"></i> Red Tag
+  </a>
+</td>
+
                   </tr>
                 <?php } ?>
               </tbody>
@@ -115,6 +124,28 @@ $result = mysqli_query($conn, $query);
       </div>
     </div>
   </div>
+  <!-- Red Tag Confirmation Modal -->
+<div class="modal fade" id="redTagModal" tabindex="-1" aria-labelledby="redTagModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="redTagModalLabel">Confirm Red Tag</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to mark this asset as Unserviceable?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="redTagForm" method="POST">
+          <input type="hidden" id="asset_id" name="asset_id">
+          <button type="submit" class="btn btn-danger">Yes, Red Tag</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
   <?php include '../modal/edit_asset_modal.php'; ?>
   <?php include '../modal/add_asset_modal.php'; ?>
   <?php include '../modal/manage_categories_modal.php'; ?>
