@@ -1,0 +1,7 @@
+{
+    "csv_header": "Pillar Inventory Custodian Slip",
+    "csv_footer": "Signatories",
+    "pdf_header": "",
+    "pdf_footer": "",
+    "export_logo": "..\/img\/logo.jpg"
+}
