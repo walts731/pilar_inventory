@@ -95,42 +95,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user_id'])) {
 
                 <div class="row">
                     <!-- Column 1: Add New User Form -->
-                    <div class="col-md-4">
-                        <div class="card shadow-lg">
-                            <div class="card-header bg-primary text-white">
-                                <h3>Add New User to Office</h3>
-                            </div>
-                            <div class="card-body">
-                                <form action="register_user.php" method="POST">
-                                    <input type="hidden" name="office_id" value="<?php echo $office_id; ?>">
-                                    <div class="mb-3">
-                                        <label for="fullname" class="form-label">Full Name</label>
-                                        <input type="text" name="fullname" id="fullname" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="username" class="form-label">Username</label>
-                                        <input type="text" name="username" id="username" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="email" name="email" id="email" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">Password</label>
-                                        <input type="password" name="password" id="password" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="role" class="form-label">Role</label>
-                                        <select name="role" id="role" class="form-select" required>
-                                            <option value="admin">Admin</option>
-                                            <option value="user">User</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="btn btn-success w-100">Register</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+<div class="col-md-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3>Add New User to Office</h3>
+        </div>
+        <div class="card-body">
+            <form action="register_user.php" method="POST" onsubmit="return validatePassword();">
+                <input type="hidden" name="office_id" value="<?php echo $office_id; ?>">
+
+                <div class="mb-3">
+                    <label for="fullname" class="form-label">Full Name</label>
+                    <input type="text" name="fullname" id="fullname" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" name="email" id="email" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password (min. 8 characters)</label>
+                    <input type="password" name="password" id="password" class="form-control" 
+                        pattern=".{8,}" title="Password must be at least 8 characters long" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <input type="password" name="confirm_password" id="confirm_password" 
+                        class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select name="role" id="role" class="form-select" required>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Register</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 
                     <!-- Column 2: Current Users List -->
                     <div class="col-md-8">

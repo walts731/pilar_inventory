@@ -180,4 +180,13 @@ $('#redTagForm').on('submit', function(e) {
   });
 });
 
+function validatePassword() {
+    const password = document.getElementById("password").value;
+    const confirm = document.getElementById("confirm_password").value;
+    if (password !== confirm) {
+        alert("Passwords do not match.");
+        return false;
+    }
+    return true;
+}
 </script>
