@@ -32,7 +32,7 @@ $redTaggedAssets = $redTaggedQuery->fetch_assoc()['red_tagged'];
 
 // Fetch categories from the 'categories' table
 $categoriesQuery = $conn->query("SELECT id, category_name, type FROM categories");
-$categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC);?>
+$categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -102,7 +102,7 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC);?>
                             <h5 class="card-title">Assets by Category</h5>
 
                             <?php foreach ($categories as $category): ?>
-                                <?php 
+                                <?php
                                 // Count the assets by category
                                 $categoryAssetsQuery = $conn->query("SELECT COUNT(*) as category_count FROM assets WHERE office_id = $officeId AND category = {$category['id']}");
                                 $categoryAssets = $categoryAssetsQuery->fetch_assoc()['category_count'];
@@ -110,7 +110,7 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC);?>
                                 // Calculate the percentage of assets in this category
                                 $categoryPercentage = $totalAssets > 0 ? ($categoryAssets / $totalAssets) * 100 : 0;
                                 ?>
-                                
+
                                 <!-- Bar Pill for Each Category -->
                                 <div class="progress mb-3">
                                     <div class="progress-bar" role="progressbar" style="width: <?php echo $categoryPercentage; ?>%" aria-valuenow="<?php echo $categoryPercentage; ?>" aria-valuemin="0" aria-valuemax="100">
@@ -119,7 +119,31 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC);?>
                                 </div>
 
                             <?php endforeach; ?>
-                            
+                            <hr>
+                            <h5 class="card-title">Assets by Status</h5>
+
+                            <?php
+                            // Get unique statuses and their counts for assets in the same office
+                            $statusQuery = $conn->query("SELECT status, COUNT(*) as status_count FROM assets WHERE office_id = $officeId GROUP BY status");
+                            while ($statusRow = $statusQuery->fetch_assoc()):
+                                $status = $statusRow['status'];
+                                $count = $statusRow['status_count'];
+                                $percentage = $totalAssets > 0 ? ($count / $totalAssets) * 100 : 0;
+
+                                // Optional: color code per status (you can expand this as needed)
+                                $statusColor = 'bg-secondary';
+                                if ($status == 'working') $statusColor = 'bg-success';
+                                elseif ($status == 'damaged') $statusColor = 'bg-warning';
+                                elseif ($status == 'unserviceable') $statusColor = 'bg-danger';
+                            ?>
+                                <!-- Bar Pill for Each Status -->
+                                <div class="progress mb-3">
+                                    <div class="progress-bar <?php echo $statusColor; ?>" role="progressbar" style="width: <?php echo $percentage; ?>%" aria-valuenow="<?php echo $percentage; ?>" aria-valuemin="0" aria-valuemax="100">
+                                        <?php echo ucfirst($status); ?> (<?php echo $count; ?>)
+                                    </div>
+                                </div>
+                            <?php endwhile; ?>
+
                         </div>
                     </div>
                 </div>
