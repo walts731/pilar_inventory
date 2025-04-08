@@ -10,7 +10,7 @@
 
     <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-            <a href="system_admin_dashboard.php" class="nav-link <?php echo ($current_page == 'system_admin_dashboard.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+            <a href="admin_dashboard.php" class="nav-link <?php echo ($current_page == 'admin_dashboard.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-house-door me-2"></i> Dashboard
             </a>
         </li>
@@ -25,8 +25,18 @@
             </a>
         </li>
         <li>
-            <a href="requests.php" class="nav-link <?php echo ($current_page == 'requests.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+            <a href="returns.php" class="nav-link <?php echo ($current_page == 'returns.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-file-earmark-text me-2"></i> Assets Returns
+            </a>
+        </li>
+        <li>
+            <a href="request_asset.php" class="nav-link <?php echo ($current_page == 'request_asset.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+                <i class="bi bi-file-earmark-text me-2"></i> Request Assets
+            </a>
+        </li>
+        <li>
+            <a href="borrow_asset.php" class="nav-link <?php echo ($current_page == 'borrow_asset.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+                <i class="bi bi-file-earmark-text me-2"></i> Borrow Assets
             </a>
         </li>
         <li>
