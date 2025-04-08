@@ -27,8 +27,11 @@ $filterQuery = "SELECT br.request_id, br.asset_id, br.user_id, br.office_id, br.
                 JOIN offices o ON br.office_id = o.id";
 
 if ($officeFilter != '') {
-    $filterQuery .= " WHERE br.office_id = $officeFilter";
+    $filterQuery .= " WHERE br.office_id = $officeFilter AND br.office_id != $officeId";
+} else {
+    $filterQuery .= " WHERE br.office_id != $officeId";
 }
+
 
 $requestQuery = $conn->query($filterQuery);
 

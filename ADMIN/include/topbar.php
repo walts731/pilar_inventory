@@ -17,10 +17,12 @@
                 case 'profile': $title = "User Profile"; break;
                 case 'settings': $title = "Settings"; break;
                 case 'requests': $title = "Asset Requests"; break;
+                case 'request': $title = "Borrow Requests"; break;
                 case 'asset_categories': $title = "Asset Categories"; break;
                 case 'users': $title = "Users Management"; break;
                 case 'create_office': $title = "Offices Management"; break;
                 case 'reports': $title = "Reports"; break;
+                case 'borrow_asset': $title = "Borrow Assets"; break;
                 case 'audit_trail': $title = "Audit Trail"; break;
                 case 'user_roles': $title = "User Roles Management"; break;
                 case 'analytics': $title = "Analytics"; break;
