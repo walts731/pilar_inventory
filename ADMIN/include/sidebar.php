@@ -25,6 +25,11 @@
             </a>
         </li>
         <li>
+            <a href="requests.php" class="nav-link <?php echo ($current_page == 'requests.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+                <i class="bi bi-file-earmark-text me-2"></i> Assets Returns
+            </a>
+        </li>
+        <li>
             <a href="create_office.php" class="nav-link <?php echo ($current_page == 'create_office.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-people me-2"></i> User Management
             </a>
