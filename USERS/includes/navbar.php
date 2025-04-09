@@ -119,7 +119,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         </div>
         <hr>
         <div class="px-3">
-            <a href="profile.php" class="btn btn-outline-primary btn-block mb-2">View Profile</a>
+            <a href="profile.php" class="btn btn-outline-primary btn-block mb-2">Profile</a>
             <a href="archives.php" class="btn btn-outline-secondary btn-block mb-2">Archives</a> <!-- ✅ New -->
             <a href="logout.php" class="btn btn-outline-danger btn-block mb-3">Logout</a>
 
