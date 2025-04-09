@@ -8,6 +8,16 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$adminId = $_SESSION['user_id'];
+$officeId = 0;
+
+// Fetch the admin's office_id securely
+$officeResult = $conn->query("SELECT office_id FROM users WHERE id = $adminId");
+if ($officeResult && $officeResult->num_rows > 0) {
+    $officeRow = $officeResult->fetch_assoc();
+    $officeId = $officeRow['office_id'];
+}
+
 // Fetch the logged-in user's office ID
 $user_id = $_SESSION['user_id'];
 $user_query = "SELECT office_id FROM users WHERE id = ?";
@@ -17,6 +27,7 @@ $stmt->execute();
 $user_result = $stmt->get_result();
 $user = $user_result->fetch_assoc();
 $office_id = $user['office_id'];
+
 
 // Default filters
 $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
@@ -150,22 +161,22 @@ $result = $stmt->get_result();
                                 <td><?= $row['description'] ?></td>
                                 <td><?= $row['quantity'] ?></td>
                                 <td>
-    <span class="badge 
+                                    <span class="badge 
         <?php
-            // Assigning color classes based on the status value
-            if ($row['status'] == 'damaged') {
-                echo 'bg-danger'; // Red for Damaged
-            } elseif ($row['status'] == 'in use') {
-                echo 'bg-primary'; // Blue for In Use
-            } elseif ($row['status'] == 'unserviceable') {
-                echo 'bg-secondary'; // Dark gray for Unserviceable
-            } elseif ($row['status'] == 'available') {
-                echo 'bg-success'; // Green for Available
-            }
+                            // Assigning color classes based on the status value
+                            if ($row['status'] == 'damaged') {
+                                echo 'bg-danger'; // Red for Damaged
+                            } elseif ($row['status'] == 'in use') {
+                                echo 'bg-primary'; // Blue for In Use
+                            } elseif ($row['status'] == 'unserviceable') {
+                                echo 'bg-secondary'; // Dark gray for Unserviceable
+                            } elseif ($row['status'] == 'available') {
+                                echo 'bg-success'; // Green for Available
+                            }
         ?>">
-        <?= $row['status'] ?>
-    </span>
-</td>
+                                        <?= $row['status'] ?>
+                                    </span>
+                                </td>
                                 <td hidden><?= $row['office_name'] ?></td> <!-- Hidden Office data -->
                                 <td><?= date("M j, Y", strtotime($row['acquisition_date'])) ?></td>
                             </tr>
@@ -187,12 +198,14 @@ $result = $stmt->get_result();
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="exportForm" method="GET">
+                    <form id="exportForm" action="export_csv.php" method="GET">
                         <input type="hidden" name="export_type" id="exportTypeInput">
                         <input type="hidden" name="status" value="<?= $status_filter ?>">
                         <input type="hidden" name="start_date" value="<?= $start_date ?>">
                         <input type="hidden" name="end_date" value="<?= $end_date ?>">
                         <input type="hidden" name="category" value="<?= $category_filter ?>">
+                        <input type="hidden" name="office_id" value="<?= $officeId ?>"> <!-- Admin's office_id -->
+
 
                         <div class="list-group">
                             <label class="list-group-item">
@@ -215,6 +228,23 @@ $result = $stmt->get_result();
             </div>
         </div>
     </div>
+
+    <script>
+        // Update the export_type input based on the selected template
+        document.querySelectorAll('input[name="template"]').forEach(function(input) {
+            input.addEventListener('change', function() {
+                // Set the export type based on the selected template
+                document.getElementById('exportTypeInput').value = this.value;
+            });
+        });
+
+        // Trigger the export process when the Proceed button is clicked
+        document.querySelector('button[type="submit"]').addEventListener('click', function() {
+            // You can add any additional checks here if needed
+            document.getElementById('exportForm').submit(); // Submit the form to export_csv.php
+        });
+    </script>
+
 
     <?php include '../includes/script.php'; ?>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
