@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         header("Location: ADMIN/admin_dashboard.php?office=" . $user["office_id"]);
                         break;
                     default:
-                        header("Location: user_dashboard.php?office=" . $user["office_id"]);
+                        header("Location: USERS/user_dashboard.php?office=" . $user["office_id"]);
                         break;
                 }
                 exit;

@@ -1,20 +1,19 @@
 <?php
 session_start();
-require '../connect.php'; // Database connection file
+require '../connect.php'; // Include your database connection
 
-// Ensure only Super Admin can access
+// Ensure only Admins can access the page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: index.php');
     exit();
 }
 
-// Get admin's office_id from users table
 $adminId = $_SESSION['user_id'];
 $officeQuery = $conn->query("SELECT office_id FROM users WHERE id = $adminId");
 $officeRow = $officeQuery->fetch_assoc();
 $officeId = $officeRow['office_id'];
 
-// Handle form submission for new user registration
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get form data
     $username = mysqli_real_escape_string($conn, $_POST['username']);
@@ -26,9 +25,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Password Hashing
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-    // Insert new user into the database
-    $sql = "INSERT INTO users (username, fullname, email, password, role, office_id) 
-            VALUES ('$username', '$fullname', '$email', '$hashed_password', '$role', '$officeId')";
+    // Set default status to 'active'
+    $status = 'active';
+
+    // Generate reset token (optional)
+    $reset_token = bin2hex(random_bytes(16));  // Random token generation
+    $reset_token_expiry = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token expiry in 1 hour
+
+    // Get current date and time for created_at
+    $created_at = date('Y-m-d H:i:s');
+
+    // Insert the new user into the database
+    $sql = "INSERT INTO users (username, fullname, email, password, role, status, created_at, reset_token, reset_token_expiry, office_id) 
+            VALUES ('$username', '$fullname', '$email', '$hashed_password', '$role', '$status', '$created_at', '$reset_token', '$reset_token_expiry', '$officeId')";
 
     if (mysqli_query($conn, $sql)) {
         $_SESSION['success'] = 'New user registered successfully.';
@@ -38,33 +47,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['error'] = 'Error: ' . mysqli_error($conn);
     }
 }
-
-if (isset($_GET['deactivate'])) {
-    $userId = $_GET['deactivate'];
-    $conn->query("UPDATE users SET status = 'inactive' WHERE id = $userId");
-    header('Location: users.php');
-    exit();
-}
-
-if (isset($_GET['activate'])) {
-    $userId = $_GET['activate'];
-    $conn->query("UPDATE users SET status = 'active' WHERE id = $userId");
-    header('Location: users.php');
-    exit();
-}
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Register User</title>
     <?php include '../includes/links.php'; ?>
 </head>
-
 <body>
     <div class="d-flex">
         <?php include 'include/sidebar.php'; ?>
@@ -74,21 +66,16 @@ if (isset($_GET['activate'])) {
             <!-- Success/Error Message Display -->
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="alert alert-success" role="alert">
-                    <?php echo $_SESSION['success'];
-                    unset($_SESSION['success']); ?>
+                    <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
                 </div>
             <?php endif; ?>
-
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert alert-danger" role="alert">
-                    <?php echo $_SESSION['error'];
-                    unset($_SESSION['error']); ?>
+                    <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Main content row -->
             <div class="row">
-                <!-- First div: User Registration Form (Left Side) -->
                 <div class="col-md-6 mt-5">
                     <div class="card">
                         <div class="card-header">
@@ -97,7 +84,6 @@ if (isset($_GET['activate'])) {
                         <div class="card-body">
                             <form method="POST" action="register_user.php">
                                 <div class="row">
-                                    <!-- First div with Username and Full Name -->
                                     <div class="col-md-6 mb-3">
                                         <label for="username" class="form-label">Username</label>
                                         <input type="text" class="form-control" id="username" name="username" required>
@@ -109,7 +95,6 @@ if (isset($_GET['activate'])) {
                                 </div>
 
                                 <div class="row">
-                                    <!-- Second div with Email, Password, and Role -->
                                     <div class="col-md-6 mb-3">
                                         <label for="email" class="form-label">Email</label>
                                         <input type="email" class="form-control" id="email" name="email" required>
@@ -121,12 +106,11 @@ if (isset($_GET['activate'])) {
                                 </div>
 
                                 <div class="row">
-                                    <!-- Role -->
                                     <div class="col-md-6 mb-3">
                                         <label for="role" class="form-label">Role</label>
                                         <select class="form-select" id="role" name="role" required>
-                                            <option value="user">user</option>
-                                            <option value="admin">admin</option>
+                                            <option value="user">User</option>
+                                            <option value="admin">Admin</option>
                                         </select>
                                     </div>
 
@@ -138,58 +122,6 @@ if (isset($_GET['activate'])) {
                                 <!-- Hidden field for office_id -->
                                 <input type="hidden" name="office_id" value="<?php echo $officeId; ?>">
                             </form>
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Second div: Registered Users List (Right Side) -->
-                <div class="col-md-6 mt-5">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Registered Users in Your Office</h5>
-                        </div>
-                        <div class="card-body">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Full Name</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Status</th>
-                                        <th>Action</th> <!-- New Action Column -->
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    // Fetch users from the same office_id
-                                    $query = "SELECT id, username, fullname, email, role, status FROM users WHERE office_id = $officeId";
-                                    $result = $conn->query($query);
-                                    while ($row = $result->fetch_assoc()) {
-                                        echo "<tr>";
-                                        echo "<td>" . htmlspecialchars($row['fullname']) . "</td>";
-                                        echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-                                        $role = htmlspecialchars($row['role']);
-                                        $badgeClass = $role === 'admin' ? 'badge bg-danger' : 'badge bg-primary';
-                                        echo "<td><span class='$badgeClass'>$role</span></td>";
-                                        $status = htmlspecialchars($row['status']);
-                                        $badgeClass = $status === 'active' ? 'badge bg-success' : 'badge bg-secondary';
-                                        echo "<td><span class='$badgeClass'>$status</span></td>";
-                                        echo "<td>";
-
-                                        if ($row['status'] == 'active') {
-                                            echo "<a href='?deactivate=" . $row['id'] . "' class='btn btn-warning btn-sm'>Deactivate</a>";
-                                        } else {
-                                            echo "<a href='?activate=" . $row['id'] . "' class='btn btn-success btn-sm'>Activate</a>";
-                                        }
-
-                                        echo "</td>";
-
-                                        echo "</tr>";
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
@@ -199,5 +131,4 @@ if (isset($_GET['activate'])) {
 
     <?php include '../includes/script.php'; ?>
 </body>
-
 </html>
