@@ -14,27 +14,48 @@ $officeQuery = $conn->query("SELECT office_id FROM users WHERE id = $adminId");
 $officeRow = $officeQuery->fetch_assoc();
 $officeId = $officeRow['office_id'];
 
-// my tables
+// Handle form submission for new user registration
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Get form data
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
+    $role = mysqli_real_escape_string($conn, $_POST['role']);
 
-// SELECT `id`, `asset_name`, `category`, `description`, `quantity`, `unit`, `status`, `acquisition_date`, `office_id`, `red_tagged`, `last_updated`, `value`, `qr_code` FROM `assets` 
+    // Password Hashing
+    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-// SELECT `id`, `office_name`, `icon` FROM `offices` 
+    // Insert new user into the database
+    $sql = "INSERT INTO users (username, fullname, email, password, role, office_id) 
+            VALUES ('$username', '$fullname', '$email', '$hashed_password', '$role', '$officeId')";
 
-// SELECT `id`, `username`, `fullname`, `email`, `password`, `role`, `status`, `created_at`, `reset_token`, `reset_token_expiry`, `office_id` FROM `users` 
+    if (mysqli_query($conn, $sql)) {
+        $_SESSION['success'] = 'New user registered successfully.';
+        header('Location: admin_dashboard.php');
+        exit();
+    } else {
+        $_SESSION['error'] = 'Error: ' . mysqli_error($conn);
+    }
+}
 
-// SELECT `id`, `borrow_request_id`, `asset_id`, `user_id`, `return_date`, `condition_on_return`, `remarks`, `office_id` FROM `returned_assets` 
+// Check if the deactivation link was clicked
+if (isset($_GET['deactivate'])) {
+    $userIdToDeactivate = $_GET['deactivate'];
 
-// SELECT `request_id`, `asset_id`, `user_id`, `office_id`, `request_date`, `status` FROM `borrow_requests` 
+    // Update user status to inactive
+    $deactivateQuery = "UPDATE users SET status = 'inactive' WHERE id = $userIdToDeactivate AND office_id = $officeId";
 
-// SELECT `id`, `category_name`, `type` FROM `categories` 
+    if (mysqli_query($conn, $deactivateQuery)) {
+        $_SESSION['success'] = 'User deactivated successfully.';
+    } else {
+        $_SESSION['error'] = 'Error: ' . mysqli_error($conn);
+    }
 
-// SELECT `action_id`, `action_name`, `office_id`, `user_id`, `category`, `quantity`, `action_date` FROM `inventory_actions`
-
-// SELECT `log_id`, `user_id`, `activity`, `timestamp`, `module` FROM `activity_log` 
-
-// SELECT `id`, `user_id`, `action_type`, `filter_status`, `filter_office`, `filter_category`, `filter_start_date`, `filter_end_date`, `created_at`, `file_name` FROM `archives`
-
-// 
+    // Redirect to avoid re-triggering the action on page refresh
+    header('Location: admin_dashboard.php');
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -53,6 +74,125 @@ $officeId = $officeRow['office_id'];
         <div class="container-fluid p-4">
             <?php include 'include/topbar.php'; ?>
 
+            <!-- Success/Error Message Display -->
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="alert alert-success" role="alert">
+                    <?php echo $_SESSION['success'];
+                    unset($_SESSION['success']); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger" role="alert">
+                    <?php echo $_SESSION['error'];
+                    unset($_SESSION['error']); ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Main content row -->
+            <div class="row">
+                <!-- First div: User Registration Form (Left Side) -->
+                <div class="col-md-6 mt-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Register New User</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="admin_dashboard.php">
+                                <div class="row">
+                                    <!-- First div with Username and Full Name -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="username" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="username" name="username" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="fullname" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="fullname" name="fullname" required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Second div with Email, Password, and Role -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Role -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="role" class="form-label">Role</label>
+                                        <select class="form-select" id="role" name="role" required>
+                                            <option value="user">user</option>
+                                            <option value="admin">admin</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <button type="submit" class="btn btn-primary">Register</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second div: Registered Users List (Right Side) -->
+                <div class="col-md-6 mt-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Registered Users in Your Office</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Action</th> <!-- New Action Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    // Fetch users from the same office_id
+                                    $query = "SELECT id, username, fullname, email, role, status FROM users WHERE office_id = $officeId";
+                                    $result = $conn->query($query);
+                                    while ($row = $result->fetch_assoc()) {
+                                        echo "<tr>";
+                                        echo "<td>" . htmlspecialchars($row['fullname']) . "</td>";
+                                        echo "<td>" . htmlspecialchars($row['email']) . "</td>";
+                                        $role = htmlspecialchars($row['role']);
+                                        $badgeClass = $role === 'admin' ? 'badge bg-danger' : 'badge bg-primary';
+                                        echo "<td><span class='$badgeClass'>$role</span></td>";
+                                        $status = htmlspecialchars($row['status']);
+                                        $badgeClass = $status === 'active' ? 'badge bg-success' : 'badge bg-secondary';
+                                        echo "<td><span class='$badgeClass'>$status</span></td>";
+                                        echo "<td>";
+
+                                        // Add Deactivate Button if the user is active
+                                        if ($row['status'] == 'active') {
+                                            echo "<a href='?deactivate=" . $row['id'] . "' class='btn btn-warning btn-sm'>Deactivate</a>";
+                                        } else {
+                                            echo "<span class='text-muted'>Deactivated</span>";
+                                        }
+
+                                        echo "</td>";
+                                        echo "</tr>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -123,11 +123,10 @@ $result = $stmt->get_result();
                     </div>
                 </form>
 
-                <!-- Export Buttons -->
-                <div class="mb-3">
-                    <a href="export_csv.php?status=<?= $status_filter ?>&start_date=<?= $start_date ?>&end_date=<?= $end_date ?>&office=<?= $office_filter ?>" class="btn btn-success">Export CSV</a>
-                    <a href="export_pdf.php?status=<?= $status_filter ?>&start_date=<?= $start_date ?>&end_date=<?= $end_date ?>&office=<?= $office_filter ?>" class="btn btn-danger">Export PDF</a>
-                </div>
+                <!-- Export Trigger Buttons -->
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#templatesModal" data-export-type="csv">Export CSV</button>
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#templatesModal" data-export-type="pdf">Export PDF</button>
+
 
                 <!-- Report Table -->
                 <table id="assetsTable" class="table table-bordered table-striped">
@@ -151,7 +150,7 @@ $result = $stmt->get_result();
                                 <td><?= $row['quantity'] ?></td>
                                 <td><?= $row['status'] ?></td>
                                 <td><?= $row['office_name'] ?></td>
-                                <td><?= date("M j, Y", strtotime($row['acquisition_date'])) ?></td>                                
+                                <td><?= date("M j, Y", strtotime($row['acquisition_date'])) ?></td>
                             </tr>
                         <?php endwhile; ?>
                     </tbody>
@@ -161,11 +160,65 @@ $result = $stmt->get_result();
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="templatesModal" tabindex="-1" aria-labelledby="templatesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="templatesModalLabel">Choose Template for Export</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="exportForm" method="GET">
+                        <input type="hidden" name="export_type" id="exportTypeInput">
+                        <input type="hidden" name="status" value="<?= $status_filter ?>">
+                        <input type="hidden" name="start_date" value="<?= $start_date ?>">
+                        <input type="hidden" name="end_date" value="<?= $end_date ?>">
+                        <input type="hidden" name="office" value="<?= $office_filter ?>">
+                        <input type="hidden" name="category" value="<?= $category_filter ?>">
+
+                        <div class="list-group">
+                            <label class="list-group-item">
+                                <input class="form-check-input me-1" type="radio" name="template" value="template1" checked>
+                                <strong>Template 1:</strong> Header: "Inventory Custodian Slip", Footer: "Signatories", Logo: logo1.png
+                                <button type="button" class="btn btn-info btn-sm float-end" data-template="template1" data-bs-toggle="modal" data-bs-target="#viewTemplateModal">View</button>
+                            </label>
+                            <label class="list-group-item">
+                                <input class="form-check-input me-1" type="radio" name="template" value="template2">
+                                <strong>Template 2:</strong> Header: "Requisition and Issue Slip", Footer: "Signatories", Logo: logo2.png
+                                <button type="button" class="btn btn-info btn-sm float-end" data-template="template2" data-bs-toggle="modal" data-bs-target="#viewTemplateModal">View</button>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" form="exportForm" class="btn btn-primary">Proceed</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <?php include '../includes/script.php'; ?>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#assetsTable').DataTable();
+        });
+
+        let exportForm = document.getElementById('exportForm');
+        let exportTypeInput = document.getElementById('exportTypeInput');
+        const templatesModal = document.getElementById('templatesModal');
+
+        templatesModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const exportType = button.getAttribute('data-export-type');
+            exportTypeInput.value = exportType;
+
+            // Set form action based on export type
+            exportForm.action = exportType === 'csv' ? 'export_csv.php' : 'export_pdf.php';
         });
     </script>
 </body>
