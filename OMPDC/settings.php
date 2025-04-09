@@ -166,7 +166,13 @@ $export_logo = $exportSettings['export_logo'] ?? '../img/logo.jpg';
 
               <!-- Export Settings -->
               <div class="tab-pane fade" id="export" role="tabpanel">
-                <h4>Export Customization</h4>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h4>Export Customization</h4>
+                  <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#templatesModal">
+                    View Saved Templates
+                  </button>
+                </div>
+
                 <div class="row">
                   <!-- Left Column: Inputs -->
                   <div class="col-md-7">
@@ -202,7 +208,7 @@ $export_logo = $exportSettings['export_logo'] ?? '../img/logo.jpg';
                         </div>
                       </div>
 
-                      <button type="submit" class="btn btn-primary">Save Changes</button>
+                      <button type="submit" class="btn btn-primary">Save Template</button>
 
                     </form>
                   </div>
@@ -226,14 +232,46 @@ $export_logo = $exportSettings['export_logo'] ?? '../img/logo.jpg';
 
                 </div>
               </div>
-
-
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="templatesModal" tabindex="-1" aria-labelledby="templatesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="templatesModalLabel">Saved Export Templates</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Template list with View buttons -->
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Template 1:</strong> Header: "Inventory Custodian Slip", Footer: "Signatories", Logo: logo1.png
+              </div>
+              <button class="btn btn-outline-primary btn-sm">View</button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Template 2:</strong> Header: "Requisition and Issue Slip", Footer: "Signatories", Logo: logo2.png
+              </div>
+              <button class="btn btn-outline-primary btn-sm">View</button>
+            </li>
+            <!-- Add more templates here as needed -->
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <?php include '../includes/script.php'; ?>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

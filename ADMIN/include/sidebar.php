@@ -40,7 +40,7 @@
             </a>
         </li>
         <li>
-            <a href="create_office.php" class="nav-link <?php echo ($current_page == 'create_office.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+            <a href="users.php" class="nav-link <?php echo ($current_page == 'create_office.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-people me-2"></i> User Management
             </a>
         </li>
