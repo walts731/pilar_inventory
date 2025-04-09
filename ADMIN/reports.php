@@ -162,18 +162,18 @@ $result = $stmt->get_result();
                                 <td><?= $row['quantity'] ?></td>
                                 <td>
                                     <span class="badge 
-        <?php
-                            // Assigning color classes based on the status value
-                            if ($row['status'] == 'damaged') {
-                                echo 'bg-danger'; // Red for Damaged
-                            } elseif ($row['status'] == 'in use') {
-                                echo 'bg-primary'; // Blue for In Use
-                            } elseif ($row['status'] == 'unserviceable') {
-                                echo 'bg-secondary'; // Dark gray for Unserviceable
-                            } elseif ($row['status'] == 'available') {
-                                echo 'bg-success'; // Green for Available
-                            }
-        ?>">
+                                    <?php
+                                    // Assigning color classes based on the status value
+                                    if ($row['status'] == 'damaged') {
+                                        echo 'bg-danger'; // Red for Damaged
+                                    } elseif ($row['status'] == 'in use') {
+                                        echo 'bg-primary'; // Blue for In Use
+                                    } elseif ($row['status'] == 'unserviceable') {
+                                        echo 'bg-secondary'; // Dark gray for Unserviceable
+                                    } elseif ($row['status'] == 'available') {
+                                        echo 'bg-success'; // Green for Available
+                                    }
+                                    ?>">
                                         <?= $row['status'] ?>
                                     </span>
                                 </td>

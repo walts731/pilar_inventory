@@ -120,6 +120,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <hr>
         <div class="px-3">
             <a href="profile.php" class="btn btn-outline-primary btn-block mb-2">View Profile</a>
+            <a href="archives.php" class="btn btn-outline-secondary btn-block mb-2">Archives</a> <!-- ✅ New -->
             <a href="logout.php" class="btn btn-outline-danger btn-block mb-3">Logout</a>
 
             <!-- Dark Mode Toggle -->
@@ -130,6 +131,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         </div>
         <button type="button" class="close position-absolute" id="closeSidebar" style="top: 10px; right: 15px;">&times;</button>
     </div>
+
 
 
     <!-- Scripts -->
@@ -153,9 +155,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         });
 
         // Dark Mode Toggle
-    $('#darkModeToggle').change(function () {
-        $('body').toggleClass('dark-mode');
-    });
+        $('#darkModeToggle').change(function() {
+            $('body').toggleClass('dark-mode');
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
