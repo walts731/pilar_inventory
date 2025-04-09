@@ -39,23 +39,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Check if the deactivation link was clicked
 if (isset($_GET['deactivate'])) {
-    $userIdToDeactivate = $_GET['deactivate'];
-
-    // Update user status to inactive
-    $deactivateQuery = "UPDATE users SET status = 'inactive' WHERE id = $userIdToDeactivate AND office_id = $officeId";
-
-    if (mysqli_query($conn, $deactivateQuery)) {
-        $_SESSION['success'] = 'User deactivated successfully.';
-    } else {
-        $_SESSION['error'] = 'Error: ' . mysqli_error($conn);
-    }
-
-    // Redirect to avoid re-triggering the action on page refresh
-    header('Location: admin_dashboard.php');
+    $userId = $_GET['deactivate'];
+    $conn->query("UPDATE users SET status = 'inactive' WHERE id = $userId");
+    header('Location: users.php');
     exit();
 }
+
+if (isset($_GET['activate'])) {
+    $userId = $_GET['activate'];
+    $conn->query("UPDATE users SET status = 'active' WHERE id = $userId");
+    header('Location: users.php');
+    exit();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -176,14 +173,14 @@ if (isset($_GET['deactivate'])) {
                                         echo "<td><span class='$badgeClass'>$status</span></td>";
                                         echo "<td>";
 
-                                        // Add Deactivate Button if the user is active
                                         if ($row['status'] == 'active') {
                                             echo "<a href='?deactivate=" . $row['id'] . "' class='btn btn-warning btn-sm'>Deactivate</a>";
                                         } else {
-                                            echo "<span class='text-muted'>Deactivated</span>";
+                                            echo "<a href='?activate=" . $row['id'] . "' class='btn btn-success btn-sm'>Activate</a>";
                                         }
 
                                         echo "</td>";
+
                                         echo "</tr>";
                                     }
                                     ?>
