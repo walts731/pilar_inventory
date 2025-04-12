@@ -12,7 +12,7 @@
             $title = "";
 
             switch ($currentPage) {
-                case 'dashboard': $title = "System Admin Dashboard"; break;
+                case 'dashboard': $title = "Admin Dashboard"; break;
                 case 'assets': $title = "Assets Inventory"; break;
                 case 'profile': $title = "User Profile"; break;
                 case 'settings': $title = "Settings"; break;
