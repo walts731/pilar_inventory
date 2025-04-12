@@ -2,46 +2,25 @@
 session_start();
 require_once "connect.php"; // Include database connection
 
-// Fetch Office List Dynamically
-$offices = [];
-$sql = "SELECT id, office_name FROM offices";
-$result = $conn->query($sql);
-
-// Check if the query executed successfully
-if (!$result) {
-    die("Error fetching offices: " . $conn->error);
-}
-
-// Check if offices exist
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $offices[] = $row; // Store offices in an array
-    }
-} else {
-    echo "<script>alert('No offices found! Please ask the super admin to add offices.');</script>";
-}
-
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST["username"]);
     $password = trim($_POST["password"]);
-    $selected_office_id = trim($_POST["office"]);
 
-    if (empty($username) || empty($password) || empty($selected_office_id)) {
+    if (empty($username) || empty($password)) {
         echo "<script>alert('Please fill in all fields.');</script>";
     } else {
         // Prepare SQL statement to prevent SQL injection
         $stmt = $conn->prepare("
             SELECT id, username, password, role, office_id 
             FROM users 
-            WHERE username = ? 
-              AND office_id = ?
+            WHERE username = ?
         ");
-        $stmt->bind_param("si", $username, $selected_office_id);
+        $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
 
-        // Check if user exists in the selected office
+        // Check if user exists
         if ($result->num_rows == 1) {
             $user = $result->fetch_assoc();
 
@@ -51,9 +30,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["user_id"] = $user["id"];
                 $_SESSION["username"] = $user["username"];
                 $_SESSION["role"] = $user["role"];
-                $_SESSION["office_id"] = $user["office_id"]; // Store the actual office ID
+                $_SESSION["office_id"] = $user["office_id"]; // Still storing office ID if needed
 
-                // Redirect based on role & office
+                // Redirect based on role
                 switch ($user["role"]) {
                     case "super_admin":
                         header("Location: OMPDC/system_admin_dashboard.php?office=" . $user["office_id"]);
@@ -70,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo "<script>alert('Invalid username or password.');</script>";
             }
         } else {
-            echo "<script>alert('Invalid username, password, or office selection.');</script>";
+            echo "<script>alert('Invalid username or password.');</script>";
         }
 
         $stmt->close();
@@ -113,30 +92,13 @@ $conn->close();
 
                 <!-- Password Field -->
                 <div class="mb-3 text-start">
-    <label for="password" class="fw-bold">Password</label>
-    <div class="input-group">
-        <input type="password" name="password" id="password" class="form-control" autocomplete="new-password" placeholder="Enter your password" required>
-        <span class="input-group-text bg-white border border-start-0 p-0" id="togglePassword" style="cursor: pointer; width: 40px; display: flex; justify-content: center; align-items: center;">
-            <i class="bi bi-eye" id="eyeIcon" style="font-size: 1rem;"></i>
-        </span>
-    </div>
-</div>
-
-                <!-- Office Dropdown -->
-                <div class="mb-3 text-start">
-                    <label for="office" class="fw-bold">Select Office</label>
-                    <select name="office" id="office" class="form-select" required>
-                        <option value="" selected disabled>Select Office</option>
-                        <?php if (!empty($offices)): ?>
-                            <?php foreach ($offices as $office): ?>
-                                <option value="<?= htmlspecialchars($office['id']) ?>">
-                                    <?= htmlspecialchars($office['office_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <option value="" disabled>No offices available</option>
-                        <?php endif; ?>
-                    </select>
+                    <label for="password" class="fw-bold">Password</label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="password" class="form-control" autocomplete="new-password" placeholder="Enter your password" required>
+                        <span class="input-group-text bg-white border border-start-0 p-0" id="togglePassword" style="cursor: pointer; width: 40px; display: flex; justify-content: center; align-items: center;">
+                            <i class="bi bi-eye" id="eyeIcon" style="font-size: 1rem;"></i>
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Login Button -->
