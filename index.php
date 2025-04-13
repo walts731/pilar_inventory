@@ -37,8 +37,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     case "super_admin":
                         header("Location: OMPDC/system_admin_dashboard.php?office=" . $user["office_id"]);
                         break;
-                    case "admin":
+                    case "office_admin":
                         header("Location: ADMIN/admin_dashboard.php?office=" . $user["office_id"]);
+                        break;
+                    case "admin";
+                        header("Location: MAIN_ADMIN/admin_dashboard.php?office=" . $user["office_id"]);
+                        break;
+                    case "office_user";
+                        header("Location: MAIN_USER/user_dashboard.php?office=" . $user["office_id"]);
                         break;
                     default:
                         header("Location: USERS/user_dashboard.php?office=" . $user["office_id"]);

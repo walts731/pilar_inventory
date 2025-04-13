@@ -136,6 +136,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user_id'])) {
                     <select name="role" id="role" class="form-select" required>
                         <option value="admin">Admin</option>
                         <option value="user">User</option>
+                        <option value="office_user">Office User</option>
+                        <option value="office_admin">Office Admin</option>
                     </select>
                 </div>
 
