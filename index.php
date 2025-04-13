@@ -44,10 +44,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         header("Location: MAIN_ADMIN/admin_dashboard.php?office=" . $user["office_id"]);
                         break;
                     case "office_user";
-                        header("Location: MAIN_USER/user_dashboard.php?office=" . $user["office_id"]);
+                        header("Location: USERS/user_dashboard.php?office=" . $user["office_id"]);
                         break;
                     default:
-                        header("Location: USERS/user_dashboard.php?office=" . $user["office_id"]);
+                        header("Location: MAIN_USER/user_dashboard.php?office=" . $user["office_id"]);
                         break;
                 }
                 exit;

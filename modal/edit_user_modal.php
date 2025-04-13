@@ -21,8 +21,11 @@
                         <select name="role" id="role" class="form-select" required>
                             <option value="admin" <?php echo $row['role'] == 'admin' ? 'selected' : ''; ?>>Admin</option>
                             <option value="user" <?php echo $row['role'] == 'user' ? 'selected' : ''; ?>>User</option>
+                            <option value="office_user" <?php echo $row['role'] == 'office_user' ? 'selected' : ''; ?>>office_user</option>
+                            <option value="office_admin" <?php echo $row['role'] == 'office_admin' ? 'selected' : ''; ?>>office_admin</option>
                         </select>
                     </div>
+                    
                     <button type="submit" class="btn btn-success">Save Changes</button>
                 </form>
             </div>

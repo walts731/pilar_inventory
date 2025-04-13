@@ -3,7 +3,7 @@ session_start();
 require '../connect.php'; // Database connection file
 
 // Ensure only user role can access
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'office_user') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
     header('Location: index.php');
     exit();
 }
