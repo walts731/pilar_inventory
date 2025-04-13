@@ -64,6 +64,9 @@ if (isset($_SESSION['user_id'])) {
                 <li class="nav-item <?= ($currentPage == 'reports.php') ? 'active' : '' ?>">
                     <a class="nav-link" href="reports.php">Reports</a>
                 </li>
+                <li class="nav-item <?= ($currentPage == 'analytics.php') ? 'active' : '' ?>">
+                    <a class="nav-link" href="analytics.php">Analytics</a>
+                </li>
                 <!-- Profile Picture -->
                 <li class="nav-item ml-3">
                     <img src="../img/josh.jpg" alt="Profile" class="profile-img" id="toggleSidebar">
