@@ -27,6 +27,7 @@ $archivesQuery = $conn->query("SELECT user_id, filter_status, filter_category, f
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archives</title>
     <?php include '../includes/links.php'; ?>
+    <link rel="stylesheet" href="../css/user.css">
 
 </head>
 

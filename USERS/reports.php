@@ -86,6 +86,7 @@ $result = $stmt->get_result();
     <?php include '../includes/links.php'; ?>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/user.css">
 </head>
 
 <body>
@@ -123,16 +124,13 @@ $result = $stmt->get_result();
                     <label>End Date:</label>
                     <input type="date" name="end_date" class="form-control" value="<?= $end_date ?>">
                 </div>
-                <div class="col-md-2 mt-4">
+                <div class="col-md-4 mt-4">
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <a href="reports.php" class="btn btn-secondary">Reset</a>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#templatesModal" data-export-type="pdf">Export PDF</button>
                 </div>
             </div>
         </form>
-
-        <!-- Export Trigger Buttons -->
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#templatesModal" data-export-type="csv">Export CSV</button>
-        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#templatesModal" data-export-type="pdf">Export PDF</button>
 
         <!-- Report Table -->
         <table id="assetsTable" class="table table-bordered table-striped">

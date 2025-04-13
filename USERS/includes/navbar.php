@@ -1,5 +1,29 @@
 <?php
-$currentPage = basename($_SERVER['PHP_SELF']);
+include '../connect.php'; // or your actual db connection file
+
+$office_name = '';
+
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+
+    // Fetch the user's office_id
+    $stmt = $conn->prepare("SELECT office_id FROM users WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($office_id);
+    $stmt->fetch();
+    $stmt->close();
+
+    // Now fetch the office_name based on office_id
+    if ($office_id) {
+        $stmt2 = $conn->prepare("SELECT office_name FROM offices WHERE id = ?");
+        $stmt2->bind_param("i", $office_id);
+        $stmt2->execute();
+        $stmt2->bind_result($office_name);
+        $stmt2->fetch();
+        $stmt2->close();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -11,71 +35,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <title>Asset Inventory Navbar</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        .profile-img {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            object-fit: cover;
-            cursor: pointer;
-        }
-
-        .offcanvas-right {
-            position: fixed;
-            top: 0;
-            right: -300px;
-            width: 300px;
-            height: 100%;
-            background-color: #fff;
-            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
-            z-index: 1050;
-            transition: right 0.3s ease-in-out;
-            padding: 20px;
-        }
-
-        .offcanvas-right.show {
-            right: 0;
-        }
-
-        .offcanvas-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        body.dark-mode {
-            background-color: #121212;
-            color: #f1f1f1;
-        }
-
-        body.dark-mode .navbar {
-            background-color: #1f1f1f !important;
-        }
-
-        body.dark-mode .offcanvas-right {
-            background-color: #1f1f1f;
-            color: #f1f1f1;
-        }
-
-        body.dark-mode .btn-outline-primary {
-            border-color: #90caf9;
-            color: #90caf9;
-        }
-
-        body.dark-mode .btn-outline-danger {
-            border-color: #ef9a9a;
-            color: #ef9a9a;
-        }
-
-        body.dark-mode hr {
-            border-color: #444;
-        }
-
-        .custom-control-label::before {
-            background-color: #ccc;
-        }
-    </style>
+    <link rel="stylesheet" href="../../css/user.css">
 </head>
 
 <body>
@@ -86,6 +46,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <img src="../img/logo.jpg" alt="Logo" width="30" height="30" class="d-inline-block align-top mr-2">
             Pilar Asset Inventory System
         </a>
+        <small class="text-light"><?= htmlspecialchars($office_name) ?></small>
+
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

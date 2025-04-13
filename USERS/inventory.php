@@ -30,6 +30,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asset Inventory</title>
     <?php include '../includes/links.php'; ?>
+    <link rel="stylesheet" href="../css/user.css">
 </head>
 <body>
     <?php include 'includes/navbar.php'; ?>
@@ -38,15 +39,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Assets for Your Office</h2>
-                <div>
-                    <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addAssetModal">
-                        <i class="fas fa-plus-circle"></i> Add Asset
-                    </button>
-                    <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                        <i class="fas fa-cogs me-1"></i> Manage Categories
-                    </a>
-
-                </div>
+                
             </div>
 
             <div class="card shadow rounded">
@@ -65,7 +58,6 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                                     <th>Value</th>
                                     <th>QR Code</th>
                                     <th>Last Updated</th>
-                                    <th>Action</th> <!-- New Action Column -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -107,22 +99,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                                             <?php endif; ?>
                                         </td>
                                         <td><?= date("M d, Y", strtotime($row['last_updated'])) ?></td>
-                                        <td>
-                                            <div class="d-flex">
-                                                <?php if ($row['qr_code']): ?>
-                                                    <a href="<?= $row['qr_code'] ?>" download class="btn btn-sm btn-outline-secondary me-2">
-                                                        <i class="fas fa-download"></i> Save QR
-                                                    </a>
-                                                <?php else: ?>
-                                                    <span class="text-muted">No QR</span>
-                                                <?php endif; ?>
-                                                <!-- Edit Button/Icon -->
-                                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary edit-btn" data-id="<?= $row['id'] ?>">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-
-                                            </div>
-                                        </td>
+                                        
                                     </tr>
 
 
