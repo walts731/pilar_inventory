@@ -2,7 +2,7 @@
 session_start();
 require '../connect.php';
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'office_admin') {
     header('Location: index.php');
     exit();
 }

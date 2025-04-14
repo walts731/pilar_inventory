@@ -3,7 +3,7 @@ session_start();
 require '../connect.php'; // Include your database connection
 
 // Ensure only Admins can access the page
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'office_admin') {
     header('Location: index.php');
     exit();
 }
