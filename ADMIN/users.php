@@ -121,14 +121,8 @@ if (isset($_GET['activate'])) {
                                 </div>
 
                                 <div class="row">
-                                    <!-- Role -->
-                                    <div class="col-md-6 mb-3">
-                                        <label for="role" class="form-label">Role</label>
-                                        <select class="form-select" id="role" name="role" required>
-                                            <option value="user">user</option>
-                                            <option value="admin">admin</option>
-                                        </select>
-                                    </div>
+                                    <!-- Role (Hidden) -->
+                                    <input type="hidden" name="role" value="office_user">
 
                                     <div class="col-md-6 mb-3">
                                         <button type="submit" class="btn btn-primary">Register</button>
