@@ -43,7 +43,7 @@ $result = $conn->query($sql);
     <div class="d-flex">
         <?php include 'include/sidebar.php'; ?>
         <div class="container-fluid">
-            <?php include '../includes/topbar.php'; ?>
+        <?php include 'include/topbar.php'; ?>
 
             <div class="container mt-5">
                 <?php echo $message; ?>

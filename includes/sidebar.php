@@ -20,6 +20,11 @@
             </a>
         </li>
         <li>
+            <a href="transfer.php" class="nav-link <?php echo ($current_page == 'transfer.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+                <i class="bi bi-file-earmark-text me-2"></i> Transfer Assets
+            </a>
+        </li>
+        <li>
             <a href="requests.php" class="nav-link <?php echo ($current_page == 'requests.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-file-earmark-text me-2"></i> Asset Requests
             </a>

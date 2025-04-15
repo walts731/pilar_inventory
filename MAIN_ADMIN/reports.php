@@ -72,7 +72,7 @@ $result = $stmt->get_result();
     <div class="d-flex">
         <?php include 'include/sidebar.php'; ?>
         <div class="container-fluid">
-            <?php include '../includes/topbar.php'; ?>
+        <?php include 'include/topbar.php'; ?>
 
             <div class="container mt-4">
                 <h2 class="mb-4">Asset Reports</h2>

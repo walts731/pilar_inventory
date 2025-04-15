@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user_id'])) {
     <div class="d-flex">
         <?php include 'include/sidebar.php'; ?>
         <div class="container-fluid">
-            <?php include '../includes/topbar.php'; ?>
+        <?php include 'include/topbar.php'; ?>
 
             <div class="container mt-5">
                 <!-- Back Button -->

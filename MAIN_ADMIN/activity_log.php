@@ -17,7 +17,7 @@ include('../connect.php');
     <div class="d-flex">
         <?php include 'include/sidebar.php'; ?>
         <div class="container-fluid">
-            <?php include '../includes/topbar.php'; ?>
+        <?php include 'include/topbar.php'; ?>
 
             <div class="container mt-4">
                 <h4 class="mb-4">System Activity Log</h4>
