@@ -66,7 +66,7 @@ while ($row = $result->fetch_assoc()) {
 
 <body>
 <div class="d-flex">
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include 'include/sidebar.php'; ?>
     <div class="container-fluid">
         <?php include '../includes/topbar.php'; ?>
 

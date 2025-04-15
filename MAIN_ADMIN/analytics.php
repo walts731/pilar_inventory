@@ -119,7 +119,7 @@ if ($restockResult && $restockResult->num_rows > 0) {
 
   <div class="d-flex">
     <!-- Sidebar -->
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include 'include/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="container-fluid">
