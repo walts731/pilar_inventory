@@ -2,10 +2,7 @@
 session_start();
 require '../connect.php';
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'superadmin') {
-    header('Location: index.php');
-    exit();
-}
+
 
 // Fetch all offices for destination selection
 $offices = $conn->query("SELECT * FROM offices ORDER BY office_name ASC");
@@ -107,9 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
     <div class="d-flex">
-        <?php include 'include/sidebar.php'; ?>
+        <?php include '../includes/sidebar.php'; ?>
         <div class="container-fluid p-4">
-            <?php include 'include/topbar.php'; ?>
+            <?php include '../includes/topbar.php'; ?>
 
             <h3>Transfer Assets</h3>
 

@@ -32,12 +32,12 @@ $result = mysqli_query($conn, $query);
   <!-- Wrapper div for Sidebar and Content -->
   <div class="d-flex">
     <!-- Include Sidebar -->
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include 'include/sidebar.php'; ?>
 
     <!-- Main Content Area -->
     <div class="container-fluid">
       <!-- Include Topbar -->
-      <?php include '../includes/topbar.php'; ?>
+      <?php include 'include/topbar.php'; ?>
 
       <!-- Main Content Section -->
       <div class="container mt-5">

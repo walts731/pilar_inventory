@@ -1,183 +1,81 @@
 <?php
 session_start();
-require '../connect.php';
 
-// Only Super Admin access
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: index.php');
-    exit();
-}
+  // Assuming you are fetching data from the database
+  include('../connect.php');
 
-// Fetch all assets with category and office name
-$assetQuery = $conn->query("
-    SELECT assets.*, categories.category_name, offices.office_name 
-    FROM assets
-    JOIN categories ON assets.category = categories.id
-    LEFT JOIN offices ON assets.office_id = offices.id
-");
+  // Query to fetch inventory data by office
+  $officesQuery = "SELECT id, office_name FROM offices";
+  $resultOffices = mysqli_query($conn, $officesQuery);
 
-$categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY category_name ASC");
-
+  // Query to fetch overall inventory
+  $overallInventoryQuery = "SELECT COUNT(*) AS total_assets FROM assets";
+  $resultOverall = mysqli_query($conn, $overallInventoryQuery);
+  $overallData = mysqli_fetch_assoc($resultOverall);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Assets - Admin</title>
-    <?php include '../includes/links.php'; ?>
-
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assets Management</title>
+  <?php include '../includes/links.php'; ?>
 </head>
 <body>
-    <div class="d-flex">
-        <?php include 'include/sidebar.php'; ?>
+  <!-- Wrapper div for Sidebar and Content -->
+  <div class="d-flex">
 
-        <div class="container-fluid p-4">
-            <?php include 'include/topbar.php'; ?>
+    <!-- Include Sidebar -->
+    <?php include 'include/sidebar.php'; ?>
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>All Office Assets</h2>
-                <div>
-                    <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addAssetModal">
-                        <i class="fas fa-plus-circle"></i> Add Asset
-                    </button>
-                    <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                        <i class="fas fa-cogs me-1"></i> Manage Categories
-                    </a>
-                </div>
-            </div>
+    <!-- Main Content Area -->
+    <div class="container-fluid">
+      <!-- Include Topbar -->
+      <?php include 'include/topbar.php'; ?>
 
-            <div class="card shadow rounded">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="assetsTable" class="table table-bordered table-striped">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Asset Name</th>
-                                    <th>Category</th>
-                                    <th>Description</th>
-                                    <th>Quantity</th>
-                                    <th>Unit</th>
-                                    <th>Status</th>
-                                    <th>Acquisition Date</th>
-                                    <th>Value</th>
-                                    <th>QR Code</th>
-                                    <th>Last Updated</th>
-                                    <th>Office</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = $assetQuery->fetch_assoc()): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($row['asset_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['category_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['description']) ?></td>
-                                        <td><?= $row['quantity'] ?></td>
-                                        <td><?= htmlspecialchars($row['unit']) ?></td>
-                                        <td>
-                                            <?php
-                                            $status = htmlspecialchars($row['status']);
-                                            switch ($status) {
-                                                case 'available':
-                                                    echo '<span class="badge bg-success">Available</span>';
-                                                    break;
-                                                case 'in use':
-                                                    echo '<span class="badge bg-warning">In Use</span>';
-                                                    break;
-                                                case 'damaged':
-                                                    echo '<span class="badge bg-danger">Damaged</span>';
-                                                    break;
-                                                case 'unserviceable':
-                                                    echo '<span class="badge bg-secondary">Unserviceable</span>';
-                                                    break;
-                                                default:
-                                                    echo '<span class="badge bg-secondary">Unknown</span>';
-                                            }
-                                            ?>
-                                        </td>
-                                        <td><?= date("M d, Y", strtotime($row['acquisition_date'])) ?></td>
-                                        <td><?= $row['value'] ?></td>
-                                        <td>
-                                            <?php if ($row['qr_code']): ?>
-                                                <img src="<?= $row['qr_code'] ?>" alt="QR Code" width="50">
-                                            <?php else: ?>
-                                                N/A
-                                            <?php endif; ?>
-                                        </td>
-                                        <td><?= date("M d, Y", strtotime($row['last_updated'])) ?></td>
-                                        <td><?= htmlspecialchars($row['office_name'] ?? 'N/A') ?></td>
-                                        <td>
-                                            <div class="d-flex">
-                                                <?php if ($row['qr_code']): ?>
-                                                    <a href="<?= $row['qr_code'] ?>" download class="btn btn-sm btn-outline-secondary me-2">
-                                                        <i class="fas fa-download"></i> Save QR
-                                                    </a>
-                                                <?php else: ?>
-                                                    <span class="text-muted">No QR</span>
-                                                <?php endif; ?>
-                                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary edit-btn" data-id="<?= $row['id'] ?>">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+      <!-- Main Content Section -->
+      <div class="container mt-5">
+        <!-- Overall Inventory Card -->
+        <div class="card mb-4">
+          <div class="card-header">
+            Overall Inventory
+            <h5 class="card-title">Total Assets: <?php echo $overallData['total_assets']; ?></h5>
+          </div>
+          <div class="card-body">
+            <a href="overall_inventory.php" class="btn btn-primary">Manage Overall Inventory</a>
+          </div>
         </div>
+
+        <!-- Office Inventory Cards -->
+        <div class="row">
+          <?php while ($office = mysqli_fetch_assoc($resultOffices)) { ?>
+            <!-- Office Card -->
+            <div class="col-md-4 mb-4">
+              <div class="card">
+                <div class="card-header">
+                  <?php echo $office['office_name']; ?>
+                </div>
+                <div class="card-body">
+                  <?php
+                    // Query to fetch assets for the specific office
+                    $officeId = $office['id'];
+                    $officeInventoryQuery = "SELECT COUNT(*) AS total_assets FROM assets WHERE office_id = $officeId";
+                    $resultOfficeInventory = mysqli_query($conn, $officeInventoryQuery);
+                    $officeData = mysqli_fetch_assoc($resultOfficeInventory);
+                  ?>
+                  <h5 class="card-title">Total Assets: <?php echo $officeData['total_assets']; ?></h5>
+                  <a href="office_inventory.php?office_id=<?php echo $office['id']; ?>" class="btn btn-primary">Manage Office Inventory</a>
+                </div>
+              </div>
+            </div>
+          <?php } ?>
+        </div>
+      </div>
     </div>
 
-    <!-- Modals -->
-    <?php include 'include/add_asset_modal.php'; ?>
-    <?php include 'include/edit_asset_modal.php'; ?>
-    <?php include '../modal/manage_categories_modal.php'; ?>
+  </div>
 
-    <?php include '../includes/script.php'; ?>
-
-    <!-- DataTables Scripts -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            $('#assetsTable').DataTable({ responsive: true });
-
-            // Attach edit function to the edit buttons in the table
-            $('.edit-btn').click(function () {
-                const assetId = $(this).data('id');
-                openEditModal(assetId);
-            });
-        });
-
-        // Function to open modal and fetch asset data
-        function openEditModal(assetId) {
-            $.ajax({
-                url: 'get_asset.php',
-                type: 'GET',
-                data: { asset_id: assetId },
-                success: function (response) {
-                    const asset = JSON.parse(response);
-                    $('#editAssetId').val(asset.id);
-                    $('#editAssetName').val(asset.asset_name);
-                    $('#editCategory').val(asset.category);
-                    $('#editDescription').val(asset.description);
-                    $('#editQuantity').val(asset.quantity);
-                    $('#editUnit').val(asset.unit);
-                    $('#editStatus').val(asset.status);
-                    $('#editAcquisitionDate').val(asset.acquisition_date);
-                    $('#editValue').val(asset.value);
-                    $('#editLastUpdated').val(asset.last_updated);
-                }
-            });
-
-            $('#editAssetModal').modal('show');
-        }
-    </script>
-</body>
+  <?php include '../includes/script.php'; ?>
+  </body>
 </html>

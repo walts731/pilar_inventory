@@ -24,31 +24,81 @@
         }
 
         switch ($currentPage) {
-            case 'admin_dashboard': $title = "Admin Dashboard"; break;
-            case 'transfer': $title = "Transfer Assets"; break;
-            case 'assets': $title = "Assets Inventory"; break;
-            case 'profile': $title = "User Profile"; break;
-            case 'settings': $title = "Settings"; break;
-            case 'requests': $title = "Asset Requests"; break;
-            case 'request': $title = "Borrow Requests"; break;
-            case 'asset_categories': $title = "Asset Categories"; break;
-            case 'users': $title = "Users Management"; break;
-            case 'create_office': $title = "Offices Management"; break;
-            case 'reports': $title = "Reports"; break;
-            case 'borrow_asset': $title = "Borrow Assets"; break;
-            case 'audit_trail': $title = "Audit Trail"; break;
-            case 'user_roles': $title = "User Roles Management"; break;
-            case 'analytics': $title = "Analytics"; break;
-            case 'archive': $title = "Archives"; break;
-            case 'activity_log': $title = "Activity Logs"; break;
-            case 'user_permissions': $title = "User Permissions Management"; break;
-            case 'asset_requests_history': $title = "Asset Requests History"; break;
-            case 'asset_requests_approval': $title = "Asset Requests Approval"; break;
-            case 'asset_requests_rejected': $title = "Rejected Asset Requests"; break;
-            case 'asset_requests_approved': $title = "Approved Asset Requests"; break;
-            case 'asset_requests_pending': $title = "Pending Asset Requests"; break;
-            case 'notifications': $title = "Notifications"; break;
-            case 'overall_inventory': $title = "Overall Inventory"; break;
+            case 'admin_dashboard':
+                $title = "Admin Dashboard";
+                break;
+            case 'transfer':
+                $title = "Transfer Assets";
+                break;
+            case 'assets':
+                $title = "Assets Inventory";
+                break;
+            case 'profile':
+                $title = "User Profile";
+                break;
+            case 'settings':
+                $title = "Settings";
+                break;
+            case 'requests':
+                $title = "Asset Requests";
+                break;
+            case 'request':
+                $title = "Borrow Requests";
+                break;
+            case 'asset_categories':
+                $title = "Asset Categories";
+                break;
+            case 'users':
+                $title = "Users Management";
+                break;
+            case 'create_office':
+                $title = "Offices Management";
+                break;
+            case 'reports':
+                $title = "Reports";
+                break;
+            case 'borrow_asset':
+                $title = "Borrow Assets";
+                break;
+            case 'audit_trail':
+                $title = "Audit Trail";
+                break;
+            case 'user_roles':
+                $title = "User Roles Management";
+                break;
+            case 'analytics':
+                $title = "Analytics";
+                break;
+            case 'archive':
+                $title = "Archives";
+                break;
+            case 'activity_log':
+                $title = "Activity Logs";
+                break;
+            case 'user_permissions':
+                $title = "User Permissions Management";
+                break;
+            case 'asset_requests_history':
+                $title = "Asset Requests History";
+                break;
+            case 'asset_requests_approval':
+                $title = "Asset Requests Approval";
+                break;
+            case 'asset_requests_rejected':
+                $title = "Rejected Asset Requests";
+                break;
+            case 'asset_requests_approved':
+                $title = "Approved Asset Requests";
+                break;
+            case 'asset_requests_pending':
+                $title = "Pending Asset Requests";
+                break;
+            case 'notifications':
+                $title = "Notifications";
+                break;
+            case 'overall_inventory':
+                $title = "Overall Inventory";
+                break;
             case 'office_inventory':
                 if (isset($_GET['office_id'])) {
                     include('../connect.php');
@@ -94,12 +144,54 @@
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
-                <li><a class="dropdown-item" href="#">🔔 New asset request</a></li>
-                <li><a class="dropdown-item" href="#">⚠️ Low stock alert</a></li>
-                <li><a class="dropdown-item" href="#">✅ Asset approved</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-center" href="notifications.php">View all notifications</a></li>
+                <?php
+                // 🔔 New Borrow Requests (Pending)
+                $borrowSql = "SELECT COUNT(*) AS total FROM borrow_requests WHERE status = 'pending'";
+                $borrowResult = $conn->query($borrowSql);
+                $borrowRow = $borrowResult->fetch_assoc();
+                if ($borrowRow['total'] > 0) {
+                    echo '<li><a class="dropdown-item" href="requests.php">🔔 ' . $borrowRow['total'] . ' new asset request(s)</a></li>';
+                }
+
+                // ⚠️ Low Stock Alerts (e.g. < 5)
+                $lowStockSql = "SELECT COUNT(*) AS low_stock FROM assets WHERE quantity < 5";
+                $lowStockResult = $conn->query($lowStockSql);
+                $lowStockRow = $lowStockResult->fetch_assoc();
+                if ($lowStockRow['low_stock'] > 0) {
+                    echo '<li><a class="dropdown-item" href="assets.php">⚠️ ' . $lowStockRow['low_stock'] . ' low stock item(s)</a></li>';
+                }
+
+                // ✅ Recently Approved Requests (last 24 hours)
+                $approvedSql = "SELECT COUNT(*) AS approved FROM borrow_requests 
+                    WHERE status = 'approved' 
+                    AND request_date >= NOW() - INTERVAL 1 DAY";
+                $approvedResult = $conn->query($approvedSql);
+                $approvedRow = $approvedResult->fetch_assoc();
+                if ($approvedRow['approved'] > 0) {
+                    echo '<li><a class="dropdown-item" href="asset_requests_approved.php">✅ ' . $approvedRow['approved'] . ' asset request(s) approved</a></li>';
+                }
+
+                // Empty fallback
+                if (
+                    $borrowRow['total'] == 0 &&
+                    $lowStockRow['low_stock'] == 0 &&
+                    $approvedRow['approved'] == 0
+                ) {
+                    echo '<li><a class="dropdown-item text-muted">No new notifications</a></li>';
+                }
+                ?>
+
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li>
+                    <a class="dropdown-item text-center" href="#" data-bs-toggle="modal" data-bs-target="#allNotificationsModal">
+                        View all notifications
+                    </a>
+                </li>
+
             </ul>
+
         </div>
 
         <span class="me-3"><?php echo htmlspecialchars($_SESSION["username"]); ?></span>
@@ -110,9 +202,62 @@
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person me-2"></i>Profile</a></li>
                 <li><a class="dropdown-item" href="settings.php"><i class="bi bi-gear me-2"></i>Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
                 <li><a class="dropdown-item" href="../logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
             </ul>
         </div>
+
+        <div class="modal fade" id="allNotificationsModal" tabindex="-1" aria-labelledby="allNotificationsLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="allNotificationsLabel">All Notifications</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group">
+
+                            <?php
+                            // 🔁 Fetch recent 20 notifications with user's fullname
+                            $notifListSql = "
+    SELECT br.*, u.fullname 
+    FROM borrow_requests br
+    JOIN users u ON br.user_id = u.id
+    ORDER BY br.request_date DESC 
+    LIMIT 20
+";
+                            $notifList = $conn->query($notifListSql);
+
+                            if ($notifList->num_rows > 0) {
+                                while ($row = $notifList->fetch_assoc()) {
+                                    $statusIcon = match ($row['status']) {
+                                        'pending' => '🔔',
+                                        'approved' => '✅',
+                                        'rejected' => '❌',
+                                        default => '📦'
+                                    };
+
+                                    echo '<li class="list-group-item">';
+                                    echo "<strong>{$statusIcon}</strong> Asset request by <code>{$row['fullname']}</code> ";
+                                    echo "<small class='text-muted'>on " . date("M d, Y h:i A", strtotime($row['request_date'])) . "</small><br>";
+                                    echo "<span>Status: <strong>" . ucfirst($row['status']) . "</strong></span>";
+                                    echo '</li>';
+                                }
+                            } else {
+                                echo '<li class="list-group-item text-muted">No notifications available.</li>';
+                            }
+                            ?>
+
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
