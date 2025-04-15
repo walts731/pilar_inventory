@@ -62,13 +62,9 @@ $assetsQuery = $conn->query("SELECT id, asset_name FROM assets");
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="asset_id" class="form-label">Asset</label>
-                                            <select name="asset_id" id="asset_id" class="form-select" required>
-                                                <option disabled selected value="">-- Select Asset --</option>
-                                                <?php while ($row = $assetsQuery->fetch_assoc()): ?>
-                                                    <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['asset_name']) ?></option>
-                                                <?php endwhile; ?>
-                                            </select>
+                                            <input type="text" name="asset_id" id="asset_id" class="form-control" placeholder="Enter Asset" required>
                                         </div>
+
 
                                         <div class="mb-3">
                                             <label for="quantity" class="form-label">Quantity</label>

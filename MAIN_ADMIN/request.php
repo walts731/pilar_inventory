@@ -92,7 +92,6 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories");
                     <table id="requestsTable" class="table table-bordered table-striped">
                         <thead>
                             <tr>
-                                <th>Request ID</th>
                                 <th>Asset Name</th>
                                 <th>Requested By</th>
                                 <th>Requesting Office</th>
@@ -104,7 +103,6 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories");
                         <tbody>
                             <?php while ($row = $requestQuery->fetch_assoc()) { ?>
                                 <tr>
-                                    <td><?php echo $row['request_id']; ?></td>
                                     <td><?php echo $row['asset_name']; ?></td>
                                     <td><?php echo $row['username']; ?></td>
                                     <td><?php echo $row['office_name']; ?></td>

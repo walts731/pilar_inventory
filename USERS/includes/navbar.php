@@ -86,7 +86,7 @@ if (isset($_SESSION['user_id'])) {
         <div class="px-3">
             <a href="profile.php" class="btn btn-outline-primary btn-block mb-2">Profile</a>
             <a href="archives.php" class="btn btn-outline-secondary btn-block mb-2">Archives</a> <!-- ✅ New -->
-            <a href="../../logout.php" class="btn btn-outline-danger btn-block mb-3">Logout</a>
+            <a href="../logout.php" class="btn btn-outline-danger btn-block mb-3">Logout</a>
 
             <!-- Dark Mode Toggle -->
             <div class="custom-control custom-switch">

@@ -4,7 +4,7 @@ session_start();
 require '../connect.php';
 
 // Only Super Admin access
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'office_user') {
     header('Location: index.php');
     exit();
 }

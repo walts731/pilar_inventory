@@ -54,7 +54,6 @@ $returnedAssetsQuery = $conn->query("
                     <table class="table table-bordered table-striped" id="returnedAssetsTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Asset Name</th>
                                 <th>User</th>
                                 <th>Office</th>
@@ -66,7 +65,6 @@ $returnedAssetsQuery = $conn->query("
                         <tbody>
                             <?php while ($row = $returnedAssetsQuery->fetch_assoc()) { ?>
                                 <tr>
-                                    <td><?= $row['id'] ?></td>
                                     <td><?= htmlspecialchars($row['asset_name']) ?></td>
                                     <td><?= htmlspecialchars($row['username']) ?></td>
                                     <td><?= htmlspecialchars($row['office_name']) ?></td>

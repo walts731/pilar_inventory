@@ -109,7 +109,7 @@ $requests = $conn->query("
                                     <?php while ($row = $assets->fetch_assoc()): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($row['asset_name']) ?></td>
-                                            <td><?= htmlspecialchars($row['category']) ?></td>
+                                            <td>Electronics</td>
                                             <td><?= $row['quantity'] ?></td>
                                             <td><?= htmlspecialchars($row['unit']) ?></td>
                                             <td><?= htmlspecialchars($row['office_name']) ?></td>

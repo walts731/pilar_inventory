@@ -79,14 +79,14 @@ if (isset($_SESSION['user_id'])) {
     <div class="offcanvas-right" id="profileSidebar">
         <div class="text-center">
             <img src="../img/josh.jpg" alt="Profile Picture" class="profile-img mt-3 mb-2" style="width: 80px; height: 80px;">
-            <h5 class="mb-0">Joshua Escano</h5>
+            <h5 class="mb-0">Elton John Moises</h5>
             <small class="text-muted">User</small>
         </div>
         <hr>
         <div class="px-3">
             <a href="profile.php" class="btn btn-outline-primary btn-block mb-2">Profile</a>
             <a href="archives.php" class="btn btn-outline-secondary btn-block mb-2">Archives</a> <!-- ✅ New -->
-            <a href="logout.php" class="btn btn-outline-danger btn-block mb-3">Logout</a>
+            <a href="../logout.php" class="btn btn-outline-danger btn-block mb-3">Logout</a>
 
             <!-- Dark Mode Toggle -->
             <div class="custom-control custom-switch">

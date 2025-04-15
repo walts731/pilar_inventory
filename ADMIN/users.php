@@ -172,10 +172,15 @@ if (isset($_GET['activate'])) {
                                         echo "<td>";
 
                                         if ($row['status'] == 'active') {
-                                            echo "<a href='?deactivate=" . $row['id'] . "' class='btn btn-warning btn-sm'>Deactivate</a>";
+                                            if ($row['role'] !== 'office_admin') {
+                                                echo "<a href='?deactivate=" . $row['id'] . "' class='btn btn-warning btn-sm'>Deactivate</a>";
+                                            } else {
+                                                echo "<span class='text-muted'>Admin</span>";
+                                            }
                                         } else {
                                             echo "<a href='?activate=" . $row['id'] . "' class='btn btn-success btn-sm'>Activate</a>";
                                         }
+
 
                                         echo "</td>";
 
