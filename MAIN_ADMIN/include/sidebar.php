@@ -30,17 +30,12 @@
             </a>
         </li>
         <li>
-            <a href="request_asset.php" class="nav-link <?php echo ($current_page == 'request_asset.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
-                <i class="bi bi-file-earmark-text me-2"></i> Request Assets
-            </a>
-        </li>
-        <li>
             <a href="borrow_asset.php" class="nav-link <?php echo ($current_page == 'borrow_asset.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-file-earmark-text me-2"></i> Borrow Assets
             </a>
         </li>
         <li>
-            <a href="users.php" class="nav-link <?php echo ($current_page == 'users.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+            <a href="create_office.php" class="nav-link <?php echo ($current_page == 'create_office.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-people me-2"></i> User Management
             </a>
         </li>
