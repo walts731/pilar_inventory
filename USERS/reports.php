@@ -95,7 +95,7 @@ $result = $stmt->get_result();
         <h2 class="mb-4">Asset Reports</h2>
 
         <!-- Filter Form -->
-        <form method="GET" class="mb-4">
+        <form id="filterForm" method="GET" class="mb-4">
             <div class="row">
                 <div class="col-md-2">
                     <label>Category:</label>
@@ -235,6 +235,17 @@ $result = $stmt->get_result();
             // You can add any additional checks here if needed
             document.getElementById('exportForm').submit(); // Submit the form to export_csv.php
         });
+
+        document.addEventListener("DOMContentLoaded", function () {
+        const filterForm = document.getElementById("filterForm");
+
+        // Auto-submit on dropdown and date change
+        filterForm.querySelectorAll("select, input[type='date']").forEach(function (element) {
+            element.addEventListener("change", function () {
+                filterForm.submit();
+            });
+        });
+    });
     </script>
 
 
