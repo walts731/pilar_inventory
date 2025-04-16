@@ -30,6 +30,7 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives WHERE filter_office =
     <?php include '../includes/links.php'; ?>
     <link rel="stylesheet" href="../css/user.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
 </head>
 
 <body>
@@ -139,9 +140,16 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives WHERE filter_office =
                                         <span class="badge bg-<?php echo $badgeColor; ?> ms-2 text-uppercase"><?php echo $fileExtension; ?></span>
                                         <small class="text-muted d-block mt-1"><?php echo $formattedDate; ?></small>
                                     </div>
-                                    <a href="path/to/reports/<?php echo urlencode($report['file_name']); ?>" class="btn btn-outline-primary btn-sm">
+                                    <a href="#"
+                                        class="btn btn-outline-primary btn-sm view-report-btn"
+                                        data-id="<?php echo $report['id']; ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#reportModal">
                                         View
                                     </a>
+
+
+
                                 </li>
                             <?php } ?>
                         </ul>
@@ -152,9 +160,43 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives WHERE filter_office =
         </div>
     </div>
 
+    <!-- Report Preview Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Report Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="reportPreviewContainer">
+                    <iframe id="reportIframe" src="" frameborder="0" width="100%" height="600px"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const viewButtons = document.querySelectorAll(".view-report-btn");
+        const iframe = document.getElementById("reportIframe");
+
+        viewButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const reportId = this.getAttribute("data-id");
+                iframe.src = "fetch_report.php?id=" + encodeURIComponent(reportId);
+            });
+        });
+
+        // Optional: Clear iframe when modal is closed
+        const reportModal = document.getElementById("reportModal");
+        reportModal.addEventListener("hidden.bs.modal", function () {
+            iframe.src = "";
+        });
+    });
+</script>

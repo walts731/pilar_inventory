@@ -14,19 +14,19 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'office_admin') {
     exit();
 }
 
-// Get admin's office_id from users table
+// Get admin's office_id
 $adminId = $_SESSION['user_id'];
 $officeQuery = $conn->query("SELECT office_id FROM users WHERE id = $adminId");
 $officeRow = $officeQuery->fetch_assoc();
 $officeId = $officeRow['office_id'];
 
-// Get filters from URL
+// Get filters
 $status = $_GET['status'] ?? '';
 $start_date = $_GET['start_date'] ?? '';
 $end_date = $_GET['end_date'] ?? '';
 $category_id = $_GET['category'] ?? '';
 
-// Prepare query
+// Build query
 $query = "SELECT assets.asset_name, categories.category_name, assets.description, assets.quantity,
                  assets.status, offices.office_name, assets.acquisition_date
           FROM assets
@@ -67,13 +67,12 @@ if (!empty($params)) {
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Set CSV headers
-header('Content-Type: text/csv');
-header('Content-Disposition: attachment; filename="asset_report.csv"');
+// Generate CSV file into uploads/
+$timestamp = date('Ymd_His');
+$file_name = "asset_report_" . $timestamp . ".csv";
+$uploadPath = "../uploads/" . $file_name;
 
-// Generate CSV file
-$file_name = "asset_report_" . date('Ymd_His') . ".csv";
-$output = fopen('php://output', 'w');
+$output = fopen($uploadPath, 'w');
 fputcsv($output, ['Asset Name', 'Category', 'Description', 'Quantity', 'Status', 'Office', 'Acquisition Date']);
 
 while ($row = $result->fetch_assoc()) {
@@ -89,7 +88,7 @@ while ($row = $result->fetch_assoc()) {
 }
 fclose($output);
 
-// Record archive action with file_name
+// Save to archives
 $insert_archive = $conn->prepare("INSERT INTO archives (user_id, action_type, filter_status, filter_office, filter_category, filter_start_date, filter_end_date, file_name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 
 $action_type = 'Export CSV';
@@ -105,5 +104,8 @@ $insert_archive->bind_param(
     $file_name
 );
 $insert_archive->execute();
+
+// Redirect to download the file
+header("Location: ../uploads/" . urlencode($file_name));
 exit();
 ?>
