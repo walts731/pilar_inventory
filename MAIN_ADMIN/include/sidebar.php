@@ -60,6 +60,11 @@
             </a>
         </li>
         <li>
+            <a href="analytics.php" class="nav-link <?php echo ($current_page == 'reports.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+                <i class="bi bi-bar-chart-line me-2"></i> Analytics
+            </a>
+        </li>
+        <li>
             <a href="archive.php" class="nav-link <?php echo ($current_page == 'archive.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-archive me-2"></i> Archive
             </a>

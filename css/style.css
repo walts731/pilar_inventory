@@ -6,11 +6,6 @@
     transform: translateX(-100%);
 }
 
-.card-body {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
     .tab-content {
       padding: 20px;
       border: 1px solid #ddd;
@@ -70,3 +65,5 @@
       font-size: 13px;
       color: #666;
     }
+
+    
