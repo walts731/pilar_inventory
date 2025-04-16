@@ -29,94 +29,132 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives WHERE filter_office =
     <title>User Dashboard</title>
     <?php include '../includes/links.php'; ?>
     <link rel="stylesheet" href="../css/user.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
     <?php include 'includes/navbar.php'; ?>
 
-    <div class="dashboard-container">
-        <div class="dashboard-left">
-            <h2>Welcome, <?php echo htmlspecialchars($fullName); ?>!</h2>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Left Sidebar Section -->
+            <div class="col-md-3 col-lg-3 col-xl-2 col-sm-3 dashboard-left p-4">
+                <h2 class="fw-bold mb-4">Welcome, <?php echo htmlspecialchars($fullName); ?>!</h2>
+
+                <!-- Generate Reports -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">Generate Reports</h3>
+                        <p class="card-text">Download your office's asset records.</p>
+
+                        <button class="btn btn-danger rounded-pill">
+                            <a href="generate_pdf.php" target="_blank" class="text-white text-decoration-none">
+                                Export PDF
+                            </a>
+                        </button>
 
 
-            <!-- Generate Reports -->
-            <div class="card">
-                <h3>Generate Reports</h3>
-                <p>Download and view reports of your office's asset records.</p>
-
-                <div class="button-container">
-                    <!-- Button for Export PDF -->
-                    <div class="button-wrapper">
-                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#templatesModal" data-export-type="pdf">Export PDF</button>
                     </div>
                 </div>
             </div>
 
-        </div>
+            <!-- Right Content Section -->
+            <div class="col-md-9 col-lg-9 col-xl-10 col-sm-9dashboard-right p-4">
+                <!-- Recent Inventory Section -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">Recent Added Inventory</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Asset Name</th>
+                                        <th>Category</th>
+                                        <th>Quantity</th>
+                                        <th>Added On</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $query = "SELECT assets.asset_name, categories.category_name, assets.quantity, assets.last_updated
+                                        FROM assets
+                                        JOIN categories ON assets.category = categories.id
+                                        WHERE assets.office_id = $officeId
+                                        ORDER BY assets.last_updated DESC LIMIT 5";
+                                    $recentInventoryQuery = $conn->query($query);
 
-        <div class="dashboard-right">
-            <!-- Recent Inventory -->
-            <div class="card">
-                <h3>Recent Added Inventory</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Asset Name</th>
-                            <th>Category</th>
-                            <th>Quantity</th>
-                            <th>Added On</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        // Modify your query to join the assets table with the categories table
-                        $query = "SELECT assets.asset_name, categories.category_name, assets.quantity, assets.last_updated
-                      FROM assets
-                      JOIN categories ON assets.category = categories.id
-                      WHERE assets.office_id = $officeId
-                      ORDER BY assets.last_updated DESC LIMIT 5"; // Ensure LIMIT is added for recent assets
-                        $recentInventoryQuery = $conn->query($query);
+                                    while ($inventory = $recentInventoryQuery->fetch_assoc()) {
+                                        $formattedDate = date("M d, Y", strtotime($inventory['last_updated']));
+                                    ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($inventory['asset_name']); ?></td>
+                                            <td>
+                                                <span class="badge bg-primary"><?php echo htmlspecialchars($inventory['category_name']); ?></span>
+                                            </td>
+                                            <td>
+                                                <?php echo htmlspecialchars($inventory['quantity']); ?>
+                                                <?php if ($inventory['quantity'] <= 5): ?>
+                                                    <span class="badge bg-danger ms-2">Low Stock</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><?php echo $formattedDate; ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
 
-                        while ($inventory = $recentInventoryQuery->fetch_assoc()) {
-                            // Format the last_updated date to 'Feb 24, 2004'
-                            $formattedDate = date("M d, Y", strtotime($inventory['last_updated']));
-                        ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($inventory['asset_name']); ?></td>
-                                <td>
-                                    <span class="badge bg-primary"><?php echo htmlspecialchars($inventory['category_name']); ?></span>
-                                </td>
-                                <td><?php echo htmlspecialchars($inventory['quantity']); ?></td>
-                                <td><?php echo $formattedDate; ?></td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
 
+                <!-- Recent Generated Reports Section -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">Recent Generated Reports</h3>
+                        <ul class="list-group list-group-flush">
+                            <?php while ($report = $recentReportsQuery->fetch_assoc()) {
+                                $formattedDate = date("M d, Y", strtotime($report['created_at']));
+                                $fileExtension = pathinfo($report['file_name'], PATHINFO_EXTENSION);
+                                $badgeColor = 'secondary';
 
-            <!-- Recent Generated Reports -->
-            <div class="card">
-                <h3>Recent Generated Reports</h3>
-                <ul>
-                    <?php while ($report = $recentReportsQuery->fetch_assoc()) { ?>
-                        <li>
-                            <?php
-                            // Format the created_at date to 'Feb 24, 2004'
-                            $formattedDate = date("M d, Y", strtotime($report['created_at']));
+                                switch (strtolower($fileExtension)) {
+                                    case 'pdf':
+                                        $badgeColor = 'danger';
+                                        break;
+                                    case 'xlsx':
+                                    case 'xls':
+                                        $badgeColor = 'success';
+                                        break;
+                                    case 'docx':
+                                    case 'doc':
+                                        $badgeColor = 'primary';
+                                        break;
+                                }
                             ?>
-                            <?php echo htmlspecialchars($report['file_name']); ?> (<?php echo $formattedDate; ?>)
-                        </li>
-                    <?php } ?>
-                </ul>
-            </div>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-file-earmark-text-fill me-2 text-muted"></i>
+                                        <strong><?php echo htmlspecialchars($report['file_name']); ?></strong>
+                                        <span class="badge bg-<?php echo $badgeColor; ?> ms-2 text-uppercase"><?php echo $fileExtension; ?></span>
+                                        <small class="text-muted d-block mt-1"><?php echo $formattedDate; ?></small>
+                                    </div>
+                                    <a href="path/to/reports/<?php echo urlencode($report['file_name']); ?>" class="btn btn-outline-primary btn-sm">
+                                        View
+                                    </a>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+                </div>
 
+            </div>
         </div>
     </div>
 
-    <!-- Add Asset Modal -->
-    <?php include '../ADMIN/include/add_asset_modal.php'; ?>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
