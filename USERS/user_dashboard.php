@@ -114,43 +114,43 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives WHERE filter_office =
                     <div class="card-body">
                         <h3 class="card-title mb-4">Recent Generated Reports</h3>
                         <!-- Recent Generated Reports Section -->
-<ul class="list-group list-group-flush">
-    <?php while ($report = $recentReportsQuery->fetch_assoc()) {
-        $formattedDate = date("M d, Y", strtotime($report['created_at']));
-        $fileExtension = pathinfo($report['file_name'], PATHINFO_EXTENSION);
-        $badgeColor = 'secondary';
+                        <ul class="list-group list-group-flush">
+                            <?php while ($report = $recentReportsQuery->fetch_assoc()) {
+                                $formattedDate = date("M d, Y", strtotime($report['created_at']));
+                                $fileExtension = pathinfo($report['file_name'], PATHINFO_EXTENSION);
+                                $badgeColor = 'secondary';
 
-        switch (strtolower($fileExtension)) {
-            case 'pdf':
-                $badgeColor = 'danger';
-                break;
-            case 'xlsx':
-            case 'xls':
-                $badgeColor = 'success';
-                break;
-            case 'docx':
-            case 'doc':
-                $badgeColor = 'primary';
-                break;
-        }
-    ?>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <i class="bi bi-file-earmark-text-fill me-2 text-muted"></i>
-                <strong><?php echo htmlspecialchars($report['file_name']); ?></strong>
-                <span class="badge bg-<?php echo $badgeColor; ?> ms-2 text-uppercase"><?php echo $fileExtension; ?></span>
-                <small class="text-muted d-block mt-1"><?php echo $formattedDate; ?></small>
-            </div>
-            <!-- Change this to use POST request -->
-            <button class="btn btn-outline-primary btn-sm view-report-btn"
-                    data-id="<?php echo $report['id']; ?>"
-                    data-bs-toggle="modal"
-                    data-bs-target="#reportModal">
-                View
-            </button>
-        </li>
-    <?php } ?>
-</ul>
+                                switch (strtolower($fileExtension)) {
+                                    case 'pdf':
+                                        $badgeColor = 'danger';
+                                        break;
+                                    case 'xlsx':
+                                    case 'xls':
+                                        $badgeColor = 'success';
+                                        break;
+                                    case 'docx':
+                                    case 'doc':
+                                        $badgeColor = 'primary';
+                                        break;
+                                }
+                            ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-file-earmark-text-fill me-2 text-muted"></i>
+                                        <strong><?php echo htmlspecialchars($report['file_name']); ?></strong>
+                                        <span class="badge bg-<?php echo $badgeColor; ?> ms-2 text-uppercase"><?php echo $fileExtension; ?></span>
+                                        <small class="text-muted d-block mt-1"><?php echo $formattedDate; ?></small>
+                                    </div>
+                                    <!-- Change this to use POST request -->
+                                    <button class="btn btn-outline-primary btn-sm view-report-btn"
+                                        data-id="<?php echo $report['id']; ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#reportModal">
+                                        View
+                                    </button>
+                                </li>
+                            <?php } ?>
+                        </ul>
 
                     </div>
                 </div>
@@ -168,11 +168,10 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives WHERE filter_office =
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="reportPreviewContainer">
-                    <!-- The iframe will now be replaced with a table -->
-                    <div id="csvContainer">
-
-                    </div>
+                    <!-- Add iframe here -->
+                    <iframe id="reportIframe" src="" width="100%" height="600px" frameborder="0"></iframe>
                 </div>
+
             </div>
         </div>
     </div>
@@ -185,45 +184,40 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives WHERE filter_office =
 </html>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         const viewButtons = document.querySelectorAll(".view-report-btn");
         const iframe = document.getElementById("reportIframe");
 
         viewButtons.forEach(button => {
-            button.addEventListener("click", function () {
+            button.addEventListener("click", function() {
                 const reportId = this.getAttribute("data-id");
-                
-                // Send POST request to fetch the report
+
                 fetch('fetch_report.php', {
-                    method: 'POST', // POST method instead of GET
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams({
-                        'id': reportId // Send report ID via POST
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            id: reportId
+                        })
                     })
-                })
-                .then(response => response.text())
-                .then(data => {
-                    // Check if the response contains a valid file or error
-                    if (data.includes("File not found")) {
-                        alert(data); // Show error
-                    } else {
-                        // Display the report in iframe
-                        iframe.src = data;
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching the report: ", error);
-                });
+                    .then(response => response.text())
+                    .then(data => {
+                        if (data.includes("File not found")) {
+                            alert(data);
+                        } else {
+                            iframe.src = data;
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching the report: ", error);
+                    });
             });
         });
 
-        // Optional: Clear iframe when modal is closed
         const reportModal = document.getElementById("reportModal");
-        reportModal.addEventListener("hidden.bs.modal", function () {
+        reportModal.addEventListener("hidden.bs.modal", function() {
             iframe.src = "";
         });
     });
 </script>
-

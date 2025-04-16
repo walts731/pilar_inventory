@@ -2,7 +2,6 @@
 session_start();
 require '../connect.php'; // Database connection file
 
-// Check if POST request contains 'id'
 if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
     http_response_code(400);
     exit("Invalid request.");
@@ -21,17 +20,32 @@ if ($result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 $fileName = $row['file_name'];
-$filePath = "../uploads/" . $fileName; // Path to the uploaded report
+$filePath = "../uploads/" . $fileName;
 
-// Check if the file exists
 if (!file_exists($filePath)) {
     http_response_code(404);
     exit("File not found at: " . $filePath);
 }
 
-// Output file (use appropriate headers for the file type)
-header("Content-Type: application/octet-stream");
-header("Content-Disposition: inline; filename=\"" . basename($filePath) . "\"");
-readfile($filePath);
-exit();
+$extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+if ($extension === 'csv') {
+    // Render CSV as HTML table
+    echo '<table class="table table-bordered">';
+    if (($handle = fopen($filePath, "r")) !== FALSE) {
+        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            echo "<tr>";
+            foreach ($data as $cell) {
+                echo "<td>" . htmlspecialchars($cell) . "</td>";
+            }
+            echo "</tr>";
+        }
+        fclose($handle);
+    }
+    echo '</table>';
+} else {
+    // For non-CSV, return path (handled by iframe)
+    echo $filePath;
+}
+exit;
 ?>
