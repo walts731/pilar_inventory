@@ -1,12 +1,14 @@
 <?php
-require '../connect.php';
+session_start();
+require '../connect.php'; // Database connection file
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+// Check if POST request contains 'id'
+if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
     http_response_code(400);
     exit("Invalid request.");
 }
 
-$reportId = intval($_GET['id']);
+$reportId = intval($_POST['id']);
 $stmt = $conn->prepare("SELECT file_name FROM archives WHERE id = ?");
 $stmt->bind_param("i", $reportId);
 $stmt->execute();
@@ -19,18 +21,17 @@ if ($result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 $fileName = $row['file_name'];
-$filePath = "../uploads/" . $fileName;
+$filePath = "../uploads/" . $fileName; // Path to the uploaded report
 
-// Convert relative to absolute path
-$publicUrl = "/uploads/" . rawurlencode($fileName);
-
-// Confirm the file exists physically
+// Check if the file exists
 if (!file_exists($filePath)) {
     http_response_code(404);
-    exit("File not found.");
+    exit("File not found at: " . $filePath);
 }
 
-// Redirect the browser to the actual file
-header("Location: $publicUrl");
+// Output file (use appropriate headers for the file type)
+header("Content-Type: application/octet-stream");
+header("Content-Disposition: inline; filename=\"" . basename($filePath) . "\"");
+readfile($filePath);
 exit();
 ?>

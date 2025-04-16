@@ -107,9 +107,9 @@ ob_start();
 
         <!-- Centered Header Text -->
         <div class="header-text">
-            <h4>Republic of the Country</h4>
-            <h4>Municipality of Region</h4>
-            <h4>Province of Province</h4>
+            <h4>Republic of the Philippines</h4>
+            <h4>Municipality of Pilar</h4>
+            <h4>Province of Albay</h4>
             <h2>INVENTORY REPORT</h2>
             <p>As of <?php echo date('F Y'); ?></p>
         </div>
