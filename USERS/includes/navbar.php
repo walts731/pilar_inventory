@@ -43,7 +43,7 @@ if (isset($_SESSION['user_id'])) {
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand d-flex align-items-center" href="#">
-            <img src="../img/logo.jpg" alt="Logo" width="30" height="30" class="d-inline-block align-top mr-2">
+            <img src="../img/PILAR LOGO TRANSPARENT.png" alt="Logo" width="30" height="30" class="d-inline-block align-top mr-2">
             Pilar Asset Inventory System
         </a>
         <small class="text-light"><?= htmlspecialchars($office_name) ?></small>

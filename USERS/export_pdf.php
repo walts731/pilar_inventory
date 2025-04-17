@@ -11,13 +11,20 @@ $options->set('isRemoteEnabled', true);
 $dompdf = new Dompdf($options);
 
 // Prepare filters
+session_start(); // Add this at the top if not already started
+
 $conditions = [];
 $params = [];
 
-if (!empty($_GET['office_id'])) {
-    $conditions[] = "assets.office_id = ?";
-    $params[] = $_GET['office_id'];
+// Enforce the user's own office_id, do not allow from GET
+$officeId = $_SESSION['office_id'] ?? null; // Ensure it's set
+if (!$officeId) {
+    die('Unauthorized access: Office ID not set.');
 }
+$conditions[] = "assets.office_id = ?";
+$params[] = $officeId;
+
+// Optional filters still allowed:
 if (!empty($_GET['category'])) {
     $conditions[] = "assets.category = ?";
     $params[] = $_GET['category'];
@@ -30,6 +37,7 @@ if (isset($_GET['red_tagged']) && $_GET['red_tagged'] !== '') {
     $conditions[] = "assets.red_tagged = ?";
     $params[] = $_GET['red_tagged'];
 }
+
 
 $whereClause = '';
 if (!empty($conditions)) {
