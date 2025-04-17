@@ -76,6 +76,7 @@ while ($row = $monthlyStats->fetch_assoc()) {
     <?php include '../includes/links.php'; ?>
     <link rel="stylesheet" href="../css/user.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../css/analytics.css">
 </head>
 <body>
 <?php include 'includes/navbar.php'; ?>
