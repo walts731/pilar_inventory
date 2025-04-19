@@ -97,7 +97,7 @@ while ($row = $monthlyStats->fetch_assoc()) {
         <div class="col-md-4 mb-3">
             <div class="card shadow-sm bg-danger text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Red-Tagged (Damaged/Unserviceable)</h5>
+                    <h5 class="card-title">Red-Tagged </h5>
                     <h3><?= $redTagged ?></h3>
                 </div>
             </div>

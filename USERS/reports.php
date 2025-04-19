@@ -128,55 +128,58 @@ $result = $stmt->get_result();
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <a href="reports.php" class="btn btn-secondary">Reset</a>
                     <a href="export_pdf.php?<?= http_build_query($_GET) ?>" target="_blank" class="btn btn-danger">Export PDF</a>
-                    </div>
+                </div>
             </div>
         </form>
 
-        <!-- Report Table -->
-        <table id="assetsTable" class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Asset Name</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Status</th>
-                    <th hidden>Office</th> <!-- Hidden column for Office -->
-                    <th>Acquisition Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= $row['asset_name'] ?></td>
-                        <td><?= $row['category_name'] ?></td>
-                        <td><?= $row['description'] ?></td>
-                        <td><?= $row['quantity'] ?></td>
-                        <td>
-                            <span class="badge 
-                                    <?php
-                                    // Assigning color classes based on the status value
-                                    if ($row['status'] == 'damaged') {
-                                        echo 'bg-danger'; // Red for Damaged
-                                    } elseif ($row['status'] == 'in use') {
-                                        echo 'bg-primary'; // Blue for In Use
-                                    } elseif ($row['status'] == 'unserviceable') {
-                                        echo 'bg-secondary'; // Dark gray for Unserviceable
-                                    } elseif ($row['status'] == 'available') {
-                                        echo 'bg-success'; // Green for Available
-                                    }
-                                    ?>">
-                                <?= $row['status'] ?>
-                            </span>
-                        </td>
-                        <td hidden><?= $row['office_name'] ?></td> <!-- Hidden Office data -->
-                        <td><?= date("M j, Y", strtotime($row['acquisition_date'])) ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-
-
+        <!-- Report Table Card -->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="assetsTable" class="table table-striped table-hover"> <!-- Removed table-bordered -->
+                        <thead>
+                            <tr>
+                                <th>Asset Name</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th hidden>Office</th> <!-- Hidden column for Office -->
+                                <th>Acquisition Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = $result->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?= $row['asset_name'] ?></td>
+                                    <td><?= $row['category_name'] ?></td>
+                                    <td><?= $row['description'] ?></td>
+                                    <td><?= $row['quantity'] ?></td>
+                                    <td>
+                                        <span class="badge 
+                                        <?php
+                                        if ($row['status'] == 'damaged') {
+                                            echo 'bg-danger';
+                                        } elseif ($row['status'] == 'in use') {
+                                            echo 'bg-primary';
+                                        } elseif ($row['status'] == 'unserviceable') {
+                                            echo 'bg-secondary';
+                                        } elseif ($row['status'] == 'available') {
+                                            echo 'bg-success';
+                                        }
+                                        ?>">
+                                            <?= $row['status'] ?>
+                                        </span>
+                                    </td>
+                                    <td hidden><?= $row['office_name'] ?></td>
+                                    <td><?= date("M j, Y", strtotime($row['acquisition_date'])) ?></td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
     </div>
     </div>
@@ -196,16 +199,16 @@ $result = $stmt->get_result();
             document.getElementById('exportForm').submit(); // Submit the form to export_csv.php
         });
 
-        document.addEventListener("DOMContentLoaded", function () {
-        const filterForm = document.getElementById("filterForm");
+        document.addEventListener("DOMContentLoaded", function() {
+            const filterForm = document.getElementById("filterForm");
 
-        // Auto-submit on dropdown and date change
-        filterForm.querySelectorAll("select, input[type='date']").forEach(function (element) {
-            element.addEventListener("change", function () {
-                filterForm.submit();
+            // Auto-submit on dropdown and date change
+            filterForm.querySelectorAll("select, input[type='date']").forEach(function(element) {
+                element.addEventListener("change", function() {
+                    filterForm.submit();
+                });
             });
         });
-    });
     </script>
 
 
