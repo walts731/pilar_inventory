@@ -102,7 +102,7 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">Recent Inventory Items</h5>
-                    <a href="all_inventory.php" class="btn btn-sm btn-primary">View All</a>
+                    <a href="assets.php" class="btn btn-sm btn-primary">View All</a>
                 </div>
 
                 <ul class="list-group">
@@ -128,7 +128,7 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">Recent Borrow Requests</h5>
-                    <a href="all_borrow_requests.php" class="btn btn-sm btn-primary">View All</a>
+                    <a href="request.php" class="btn btn-sm btn-primary">View All</a>
                 </div>
 
                 <ul class="list-group">
@@ -168,7 +168,7 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">Recent Returned Assets</h5>
-                    <a href="all_returned_assets.php" class="btn btn-sm btn-primary">View All</a>
+                    <a href="returns.php" class="btn btn-sm btn-primary">View All</a>
                 </div>
 
                 <ul class="list-group">
@@ -252,7 +252,7 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">Recent Users</h5>
-                    <a href="all_users.php" class="btn btn-sm btn-primary">View All</a>
+                    <a href="users.php" class="btn btn-sm btn-primary">View All</a>
                 </div>
 
                 <ul class="list-group">

@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_asset'])) {
             exit;
         }
     } else {
-        echo "<script>alert('Database error. Please try again.'); window.location.href='assets_list.php';</script>";
+        echo "<script>alert('Database error. Please try again.'); window.location.href='assets.php';</script>";
         exit;
     }
 
