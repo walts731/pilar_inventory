@@ -14,6 +14,20 @@ $officeId = $userRow['office_id'];
 $fullName = $userRow['fullname'];
 
 $archivesQuery = $conn->query("SELECT user_id, filter_status, filter_category, filter_start_date, filter_end_date, file_name, action_type, created_at FROM archives WHERE filter_office = $officeId");
+
+// Get distinct status and category options
+$statusOptions = [];
+$categoryOptions = [];
+
+$statusQuery = $conn->query("SELECT DISTINCT filter_status FROM archives WHERE filter_office = $officeId AND filter_status IS NOT NULL");
+while ($row = $statusQuery->fetch_assoc()) {
+    $statusOptions[] = $row['filter_status'];
+}
+
+$categoryQuery = $conn->query("SELECT DISTINCT filter_category FROM archives WHERE filter_office = $officeId AND filter_category IS NOT NULL");
+while ($row = $categoryQuery->fetch_assoc()) {
+    $categoryOptions[] = $row['filter_category'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -24,8 +38,6 @@ $archivesQuery = $conn->query("SELECT user_id, filter_status, filter_category, f
     <title>Archives</title>
     <?php include '../includes/links.php'; ?>
     <link rel="stylesheet" href="../css/user.css">
-
-    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 
@@ -76,16 +88,29 @@ $archivesQuery = $conn->query("SELECT user_id, filter_status, filter_category, f
     <div class="row mb-3">
         <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
             <label for="statusFilter">Status</label>
-            <input type="text" id="statusFilter" class="form-control" placeholder="Filter by status">
+            <select id="statusFilter" class="form-control">
+                <option value="">All</option>
+                <?php foreach ($statusOptions as $status): ?>
+                    <option value="<?= htmlspecialchars($status) ?>"><?= htmlspecialchars($status) ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
+
         <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
             <label for="categoryFilter">Category</label>
-            <input type="text" id="categoryFilter" class="form-control" placeholder="Filter by category">
+            <select id="categoryFilter" class="form-control">
+                <option value="">All</option>
+                <?php foreach ($categoryOptions as $category): ?>
+                    <option value="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($category) ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
+
         <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
             <label for="startDateFilter">Start Date</label>
             <input type="date" id="startDateFilter" class="form-control">
         </div>
+
         <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
             <label for="endDateFilter">End Date</label>
             <input type="date" id="endDateFilter" class="form-control">
@@ -153,11 +178,11 @@ $archivesQuery = $conn->query("SELECT user_id, filter_status, filter_category, f
             responsive: true
         });
 
-        $('#statusFilter').on('keyup change', function () {
+        $('#statusFilter').on('change', function () {
             table.column(1).search(this.value).draw();
         });
 
-        $('#categoryFilter').on('keyup change', function () {
+        $('#categoryFilter').on('change', function () {
             table.column(2).search(this.value).draw();
         });
 
