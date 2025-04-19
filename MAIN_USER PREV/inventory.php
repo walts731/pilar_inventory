@@ -2,18 +2,20 @@
 session_start();
 require '../connect.php';
 
-// Check if the user has the right role to access this page
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
+// Allow access for all logged-in users (update roles as needed)
+$allowedRoles = ['admin', 'user']; // Add more roles if needed
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowedRoles)) {
     header('Location: index.php');
     exit();
 }
 
-// Fetch assets for the user, not tied to any specific office
-$assetQuery = $conn->query("SELECT assets.*, categories.category_name FROM assets
-                            JOIN categories ON assets.category = categories.id");
+// Fetch all assets from all offices
+$assetQuery = $conn->query("SELECT assets.*, categories.category_name, offices.office_name FROM assets
+                            JOIN categories ON assets.category = categories.id
+                            JOIN offices ON assets.office_id = offices.id");
 
-// Fetch all categories for managing assets
 $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY category_name ASC");
+
 ?>
 
 <!DOCTYPE html>
@@ -24,58 +26,20 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
     <title>Asset Inventory</title>
     <?php include '../includes/links.php'; ?>
     <link rel="stylesheet" href="../css/user.css">
-
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-
-    <style>
-        @media (max-width: 768px) {
-            .card {
-                margin: 0 auto;
-                width: 100%;
-                border-radius: 0.5rem;
-            }
-
-            .card-body {
-                padding: 0.5rem;
-            }
-
-            table.dataTable {
-                font-size: 0.75rem;
-            }
-
-            .table-responsive {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            img {
-                max-width: 100%;
-                height: auto;
-            }
-        }
-
-        @media (min-width: 992px) {
-            .card {
-                max-height: 80vh;
-                overflow-y: auto;
-            }
-        }
-    </style>
 </head>
 <body>
     <?php include 'includes/navbar.php'; ?>
 
     <div class="container-fluid p-4">
+
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Assets Inventory</h2>
+            <h2>All Assets</h2>
         </div>
 
-        <div class="card shadow rounded w-100">
-            <div class="card-body p-3">
+        <div class="card shadow rounded">
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table id="assetsTable" class="table table-bordered table-striped w-100">
+                    <table id="assetsTable" class="table table-bordered table-striped">
                         <thead class="table-light">
                             <tr>
                                 <th>Asset Name</th>
@@ -87,6 +51,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                                 <th>Acquisition Date</th>
                                 <th>Value</th>
                                 <th>QR Code</th>
+                                <th>Office</th>
                                 <th>Last Updated</th>
                             </tr>
                         </thead>
@@ -123,11 +88,12 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                                     <td><?= $row['value'] ?></td>
                                     <td>
                                         <?php if ($row['qr_code']): ?>
-                                            <img src="../qr_codes/<?= $row['qr_code'] ?>" alt="QR Code" width="50">
+                                            <img src="<?= $row['qr_code'] ?>" alt="QR Code" width="50">
                                         <?php else: ?>
                                             N/A
                                         <?php endif; ?>
                                     </td>
+                                    <td><?= htmlspecialchars($row['office_name']) ?></td>
                                     <td><?= date("M d, Y", strtotime($row['last_updated'])) ?></td>
                                 </tr>
                             <?php endwhile; ?>
@@ -136,6 +102,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- Modals -->
@@ -143,13 +110,11 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
     <?php include '../ADMIN/include/edit_asset_modal.php'; ?>
     <?php include '../modal/manage_categories_modal.php'; ?>
 
-    <!-- Scripts -->
     <?php include '../includes/script.php'; ?>
 
+    <!-- DataTables Scripts -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -167,7 +132,9 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
             $.ajax({
                 url: 'get_asset.php',
                 type: 'GET',
-                data: { asset_id: assetId },
+                data: {
+                    asset_id: assetId
+                },
                 success: function(response) {
                     const asset = JSON.parse(response);
                     $('#editAssetId').val(asset.id);
@@ -180,10 +147,12 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                     $('#editAcquisitionDate').val(asset.acquisition_date);
                     $('#editValue').val(asset.value);
                     $('#editLastUpdated').val(asset.last_updated);
-                    $('#editAssetModal').modal('show');
                 }
             });
+
+            $('#editAssetModal').modal('show');
         }
     </script>
+
 </body>
 </html>

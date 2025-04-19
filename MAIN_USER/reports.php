@@ -8,48 +8,58 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$adminId = $_SESSION['user_id'];
+
+// Fetch categories for the filter dropdown
+$categories_query = "SELECT id, category_name FROM categories";
+$categories_result = $conn->query($categories_query);
+
 // Default filters
 $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $category_filter = isset($_GET['category']) ? $_GET['category'] : '';
 
-// Fetch categories for filter dropdown
-$categories_query = "SELECT id, category_name FROM categories";
-$categories_result = $conn->query($categories_query);
-
-// Build base query to fetch ALL assets (not limited to an office)
+// Fetch filtered assets query without office-based filtering
 $query = "SELECT assets.id, assets.asset_name, categories.category_name, assets.description, 
-                assets.quantity, assets.status, offices.office_name, assets.acquisition_date 
+                assets.quantity, assets.status, assets.acquisition_date 
           FROM assets 
-          JOIN categories ON assets.category = categories.id 
-          JOIN offices ON assets.office_id = offices.id 
-          WHERE 1"; // Always true, simplifies appending filters
+          JOIN categories ON assets.category = categories.id";
 
-// Prepare dynamic conditions
+// Apply filters if provided
+if (!empty($status_filter)) {
+    $query .= " WHERE assets.status = ?";
+}
+
+if (!empty($category_filter)) {
+    $query .= (!empty($status_filter) ? " AND" : " WHERE") . " assets.category = ?";
+}
+
+if (!empty($start_date) && !empty($end_date)) {
+    $query .= (!empty($status_filter) || !empty($category_filter) ? " AND" : " WHERE") . " assets.acquisition_date BETWEEN ? AND ?";
+}
+
+// Prepare parameters based on applied filters
 $params = [];
-$types = "";
+$types = '';
 
 if (!empty($status_filter)) {
-    $query .= " AND assets.status = ?";
     $params[] = $status_filter;
     $types .= "s";
 }
 
 if (!empty($category_filter)) {
-    $query .= " AND assets.category = ?";
     $params[] = $category_filter;
     $types .= "s";
 }
 
 if (!empty($start_date) && !empty($end_date)) {
-    $query .= " AND assets.acquisition_date BETWEEN ? AND ?";
     $params[] = $start_date;
     $params[] = $end_date;
     $types .= "ss";
 }
 
-// Prepare and execute statement
+// Prepare and execute the statement
 $stmt = $conn->prepare($query);
 if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
@@ -76,7 +86,7 @@ $result = $stmt->get_result();
         <h2 class="mb-4">Asset Reports</h2>
 
         <!-- Filter Form -->
-        <form method="GET" class="mb-4">
+        <form id="filterForm" method="GET" class="mb-4">
             <div class="row">
                 <div class="col-md-2">
                     <label>Category:</label>
@@ -108,118 +118,78 @@ $result = $stmt->get_result();
                 <div class="col-md-4 mt-4">
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <a href="reports.php" class="btn btn-secondary">Reset</a>
-                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#templatesModal" data-export-type="pdf">Export PDF</button>
+                    <a href="export_pdf.php?<?= http_build_query($_GET) ?>" target="_blank" class="btn btn-danger">Export PDF</a>
                 </div>
             </div>
         </form>
 
-        <!-- Report Table -->
-        <table id="assetsTable" class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Asset Name</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Status</th>
-                    <th>Office</th>
-                    <th>Acquisition Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['asset_name']) ?></td>
-                        <td><?= htmlspecialchars($row['category_name']) ?></td>
-                        <td><?= htmlspecialchars($row['description']) ?></td>
-                        <td><?= $row['quantity'] ?></td>
-                        <td>
-                            <span class="badge 
-                                    <?php
-                                    $status = strtolower($row['status']);
-                                    echo match ($status) {
-                                        'damaged' => 'bg-danger',
-                                        'in use' => 'bg-primary',
-                                        'unserviceable' => 'bg-secondary',
-                                        'available' => 'bg-success',
-                                        default => 'bg-light text-dark'
-                                    };
-                                    ?>">
-                                <?= $row['status'] ?>
-                            </span>
-                        </td>
-                        <td><?= htmlspecialchars($row['office_name']) ?></td>
-                        <td><?= date("M j, Y", strtotime($row['acquisition_date'])) ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-
-    </div>
-
-    <!-- Export Modal -->
-    <div class="modal fade" id="templatesModal" tabindex="-1" aria-labelledby="templatesModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="templatesModalLabel">Choose Template for Export</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="exportForm" action="export_csv.php" method="GET">
-                        <input type="hidden" name="export_type" id="exportTypeInput">
-                        <input type="hidden" name="status" value="<?= $status_filter ?>">
-                        <input type="hidden" name="start_date" value="<?= $start_date ?>">
-                        <input type="hidden" name="end_date" value="<?= $end_date ?>">
-                        <input type="hidden" name="category" value="<?= $category_filter ?>">
-
-                        <div class="list-group">
-                            <label class="list-group-item">
-                                <input class="form-check-input me-1" type="radio" name="template" value="template1" checked>
-                                <strong>Template 1:</strong> Inventory Custodian Slip - logo1.png
-                                <button type="button" class="btn btn-info btn-sm float-end" data-template="template1" data-bs-toggle="modal" data-bs-target="#viewTemplateModal">View</button>
-                            </label>
-                            <label class="list-group-item">
-                                <input class="form-check-input me-1" type="radio" name="template" value="template2">
-                                <strong>Template 2:</strong> Requisition and Issue Slip - logo2.png
-                                <button type="button" class="btn btn-info btn-sm float-end" data-template="template2" data-bs-toggle="modal" data-bs-target="#viewTemplateModal">View</button>
-                            </label>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" form="exportForm" class="btn btn-primary">Proceed</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <!-- Report Table Card -->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="assetsTable" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Asset Name</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Acquisition Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = $result->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?= $row['asset_name'] ?></td>
+                                    <td><?= $row['category_name'] ?></td>
+                                    <td><?= $row['description'] ?></td>
+                                    <td><?= $row['quantity'] ?></td>
+                                    <td>
+                                        <span class="badge 
+                                        <?php
+                                        if ($row['status'] == 'damaged') {
+                                            echo 'bg-danger';
+                                        } elseif ($row['status'] == 'in use') {
+                                            echo 'bg-primary';
+                                        } elseif ($row['status'] == 'unserviceable') {
+                                            echo 'bg-secondary';
+                                        } elseif ($row['status'] == 'available') {
+                                            echo 'bg-success';
+                                        }
+                                        ?>">
+                                            <?= $row['status'] ?>
+                                        </span>
+                                    </td>
+                                    <td><?= date("M j, Y", strtotime($row['acquisition_date'])) ?></td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Export modal logic
-        document.querySelectorAll('input[name="template"]').forEach(input => {
-            input.addEventListener('change', () => {
-                document.getElementById('exportTypeInput').value = input.value;
-            });
+        $(document).ready(function() {
+            $('#assetsTable').DataTable();
         });
 
-        const templatesModal = document.getElementById('templatesModal');
-        templatesModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const exportType = button.getAttribute('data-export-type');
-            document.getElementById('exportTypeInput').value = exportType;
-            const exportForm = document.getElementById('exportForm');
-            exportForm.action = exportType === 'csv' ? 'export_csv.php' : 'export_pdf.php';
+        document.addEventListener("DOMContentLoaded", function() {
+            const filterForm = document.getElementById("filterForm");
+
+            // Auto-submit on dropdown and date change
+            filterForm.querySelectorAll("select, input[type='date']").forEach(function(element) {
+                element.addEventListener("change", function() {
+                    filterForm.submit();
+                });
+            });
         });
     </script>
 
     <?php include '../includes/script.php'; ?>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#assetsTable').DataTable();
-        });
-    </script>
 </body>
 
 </html>

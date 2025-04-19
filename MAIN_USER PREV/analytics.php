@@ -8,9 +8,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
     exit();
 }
 
-$userId = $_SESSION['user_id']; // assumes 'user_id' is stored in session
-
-// Total Assets (general)
+// Total Assets
 $totalAssets = $conn->query("SELECT COUNT(*) as total FROM assets")->fetch_assoc()['total'];
 
 // Red-tagged items (damaged/unserviceable)
@@ -63,7 +61,6 @@ while ($row = $monthlyStats->fetch_assoc()) {
     <?php include '../includes/links.php'; ?>
     <link rel="stylesheet" href="../css/user.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="../css/analytics.css">
 </head>
 <body>
 <?php include 'includes/navbar.php'; ?>
@@ -84,14 +81,14 @@ while ($row = $monthlyStats->fetch_assoc()) {
         <div class="col-md-4 mb-3">
             <div class="card shadow-sm bg-danger text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Red-Tagged </h5>
+                    <h5 class="card-title">Red-Tagged (Damaged/Unserviceable)</h5>
                     <h3><?= $redTagged ?></h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
             <?php foreach ($statusData as $status => $count): ?>
-                <div class="card shadow-sm mb-2">
+                <div class="card shadow-sm">
                     <div class="card-body">
                         <h6 class="card-title"><?= ucfirst($status) ?></h6>
                         <h4><?= $count ?></h4>
@@ -148,6 +145,7 @@ while ($row = $monthlyStats->fetch_assoc()) {
         </div>
     </div>
 </div>
+
 
 <!-- Chart.js Scripts -->
 <script>
