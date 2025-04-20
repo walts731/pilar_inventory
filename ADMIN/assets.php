@@ -104,7 +104,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                                         <td><?= $row['value'] ?></td>
                                         <td>
                                             <?php if ($row['qr_code']): ?>
-                                                <img src="../qr_codes/<?= htmlspecialchars($row['qr_code']) ?>" alt="QR Code" width="50">
+                                                <img src="../qr_code/<?= htmlspecialchars($row['qr_code']) ?>" alt="QR Code" width="50">
                                             <?php else: ?>
                                                 N/A
                                             <?php endif; ?>
