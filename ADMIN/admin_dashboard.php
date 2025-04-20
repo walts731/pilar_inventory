@@ -68,7 +68,9 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                 <div class="col">
                     <div class="card border-primary shadow h-100">
                         <div class="card-body text-primary">
-                            <h5 class="card-title">Total Users</h5>
+                            <h5 class="card-title">
+                                <i class="fas fa-users"></i> Total Users
+                            </h5>
                             <h3><?php echo $totalUsers; ?></h3>
                         </div>
                     </div>
@@ -78,7 +80,9 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                 <div class="col">
                     <div class="card border-success shadow h-100">
                         <div class="card-body text-success">
-                            <h5 class="card-title">Total Assets</h5>
+                            <h5 class="card-title">
+                                <i class="fas fa-boxes"></i> Total Assets
+                            </h5>
                             <h3><?php echo $totalAssets; ?></h3>
                         </div>
                     </div>
@@ -88,7 +92,9 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                 <div class="col">
                     <div class="card border-warning shadow h-100">
                         <div class="card-body text-warning">
-                            <h5 class="card-title">Low Quantity Assets</h5>
+                            <h5 class="card-title">
+                                <i class="fas fa-exclamation-triangle"></i> Low Quantity Assets
+                            </h5>
                             <h3><?php echo $lowQuantityAssets; ?></h3>
                         </div>
                     </div>
@@ -98,11 +104,14 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                 <div class="col">
                     <div class="card border-danger shadow h-100">
                         <div class="card-body text-danger">
-                            <h5 class="card-title">Red Tagged Assets</h5>
+                            <h5 class="card-title">
+                                <i class="fas fa-ban"></i> Red Tagged Assets
+                            </h5>
                             <h3><?php echo $redTaggedAssets; ?></h3>
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="row g-4 mt-2">
@@ -111,9 +120,14 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                     <div class="card shadow mb-4">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title mb-0">Recent Inventory Items</h5>
-                                <a href="assets.php" class="btn btn-sm btn-primary">View All</a>
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-box-open me-2"></i> Recent Inventory Items
+                                </h5>
+                                <a href="assets.php" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i> View All
+                                </a>
                             </div>
+
 
                             <ul class="list-group">
                                 <?php
@@ -137,8 +151,12 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                     <div class="card shadow mb-4">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title mb-0">Recent Borrow Requests</h5>
-                                <a href="request.php" class="btn btn-sm btn-primary">View All</a>
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-clipboard-list me-2"></i> Recent Borrow Requests
+                                </h5>
+                                <a href="request.php" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i> View All
+                                </a>
                             </div>
 
                             <ul class="list-group">
@@ -177,8 +195,12 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                     <div class="card shadow">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title mb-0">Recent Returned Assets</h5>
-                                <a href="returns.php" class="btn btn-sm btn-primary">View All</a>
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-undo-alt me-2"></i> Recent Returned Assets
+                                </h5>
+                                <a href="returns.php" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i> View All
+                                </a>
                             </div>
 
                             <ul class="list-group">
@@ -219,7 +241,9 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                     <!-- Assets by Category and Status -->
                     <div class="card shadow mb-4">
                         <div class="card-body">
-                            <h5 class="card-title">Assets by Category</h5>
+                            <h5 class="card-title">
+                                <i class="fas fa-chart-pie me-2"></i> Assets by Category
+                            </h5>
 
                             <?php foreach ($categories as $category): ?>
                                 <?php
@@ -235,7 +259,9 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                             <?php endforeach; ?>
 
                             <hr>
-                            <h5 class="card-title">Assets by Status</h5>
+                            <h5 class="card-title">
+                                <i class="fas fa-cogs me-2"></i> Assets by Status
+                            </h5>
                             <?php
                             $statusQuery = $conn->query("SELECT status, COUNT(*) as status_count FROM assets WHERE office_id = $officeId GROUP BY status");
                             while ($statusRow = $statusQuery->fetch_assoc()):
@@ -261,8 +287,12 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                     <div class="card shadow">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title mb-0">Recent Users</h5>
-                                <a href="users.php" class="btn btn-sm btn-primary">View All</a>
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-users me-2"></i> Recent Users
+                                </h5>
+                                <a href="users.php" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i> View All
+                                </a>
                             </div>
 
                             <ul class="list-group">
@@ -289,6 +319,7 @@ $categories = $categoriesQuery->fetch_all(MYSQLI_ASSOC); ?>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
