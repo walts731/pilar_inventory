@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_asset'])) {
     if ($stmt = $conn->prepare($query)) {
         $stmt->bind_param("sssiissdii", $asset_name, $category_id, $description, $quantity, $unit, $status, $acquisition_date, $value, $red_tagged, $officeId);
         if ($stmt->execute()) {
-            echo "<script>alert('Asset added successfully!'); window.location.href='assets_list.php';</script>";
+            echo "<script>alert('Asset added successfully!'); window.location.href='assets.php';</script>";
         } else {
             echo "<script>alert('Error adding asset. Please try again.'); window.location.href='assets.php';</script>";
         }
