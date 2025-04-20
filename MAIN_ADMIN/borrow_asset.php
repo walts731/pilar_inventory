@@ -40,6 +40,7 @@ $assetQuery = "
     JOIN offices o ON a.office_id = o.id 
     WHERE a.office_id != $officeId AND a.quantity > 0 AND a.status = 'available'
 ";
+
 if ($selectedOffice > 0) {
     $assetQuery .= " AND a.office_id = $selectedOffice";
 }
