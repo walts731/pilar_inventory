@@ -19,9 +19,7 @@ $assetQuery = $conn->query("SELECT assets.*, categories.category_name FROM asset
                             WHERE assets.office_id = $officeId");
 
 $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY category_name ASC");
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -32,32 +30,32 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
 
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="css/asset.css">
 </head>
 
 <body>
-    <div class="d-flex">
+    <div class="d-flex flex-column flex-lg-row">
         <?php include 'include/sidebar.php'; ?>
 
-        <div class="container-fluid p-4">
+        <div class="container-fluid p-4 mt-3">
             <?php include 'include/topbar.php'; ?>
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Assets for Your Office</h2>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 mt-4">
+                <h2 class="mb-3 mb-md-0">Assets for Your Office</h2>
                 <div>
-                    <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addAssetModal">
+                    <button class="btn btn-primary me-2 mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="#addAssetModal">
                         <i class="fas fa-plus-circle"></i> Add Asset
                     </button>
                     <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                         <i class="fas fa-cogs me-1"></i> Manage Categories
                     </a>
-
                 </div>
             </div>
 
             <div class="card shadow rounded">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="assetsTable" class="table table-bordered table-striped">
+                        <table id="assetsTable" class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
                                     <th>Asset Name</th>
@@ -70,7 +68,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                                     <th>Value</th>
                                     <th>QR Code</th>
                                     <th>Last Updated</th>
-                                    <th>Action</th> <!-- New Action Column -->
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -89,7 +87,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                                                     echo '<span class="badge bg-success">Available</span>';
                                                     break;
                                                 case 'in use':
-                                                    echo '<span class="badge bg-warning">In Use</span>';
+                                                    echo '<span class="badge bg-warning text-dark">In Use</span>';
                                                     break;
                                                 case 'damaged':
                                                     echo '<span class="badge bg-danger">Damaged</span>';
@@ -106,34 +104,30 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                                         <td><?= $row['value'] ?></td>
                                         <td>
                                             <?php if ($row['qr_code']): ?>
-                                                <img src="<?= $row['qr_code'] ?>" alt="QR Code" width="50">
+                                                <img src="../qr_codes/<?= htmlspecialchars($row['qr_code']) ?>" alt="QR Code" width="50">
                                             <?php else: ?>
                                                 N/A
                                             <?php endif; ?>
                                         </td>
+
                                         <td><?= date("M d, Y", strtotime($row['last_updated'])) ?></td>
                                         <td>
-                                            <div class="d-flex">
+                                            <div class="d-flex justify-content-start gap-2">
                                                 <?php if ($row['qr_code']): ?>
-                                                    <a href="<?= $row['qr_code'] ?>" download class="btn btn-sm btn-outline-secondary me-2">
+                                                    <a href="<?= $row['qr_code'] ?>" download class="btn btn-sm btn-outline-secondary">
                                                         <i class="fas fa-download"></i> Save QR
                                                     </a>
                                                 <?php else: ?>
                                                     <span class="text-muted">No QR</span>
                                                 <?php endif; ?>
-                                                <!-- Edit Button/Icon -->
                                                 <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary edit-btn" data-id="<?= $row['id'] ?>">
-                                                    <i class="fas fa-edit"></i>
+                                                    <i class="fas fa-edit"></i> 
                                                 </a>
-
                                             </div>
                                         </td>
                                     </tr>
-
-
                                 <?php endwhile; ?>
                             </tbody>
-
                         </table>
                     </div>
                 </div>
@@ -141,14 +135,11 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
 
         </div>
     </div>
-    <!-- Add Asset Modal -->
+
+    <!-- Modals -->
     <?php include 'include/add_asset_modal.php'; ?>
-    <!-- Edit Asset Modal -->
     <?php include 'include/edit_asset_modal.php'; ?>
-    <!-- Add Category Modal -->
     <?php include '../modal/manage_categories_modal.php'; ?>
-
-
     <?php include '../includes/script.php'; ?>
 
     <!-- DataTables Scripts -->
@@ -158,13 +149,22 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
     <script>
         $(document).ready(function() {
             $('#assetsTable').DataTable({
-                responsive: true
+                responsive: true,
+                pagingType: 'simple',
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search assets..."
+                }
+            });
+
+            // Edit button trigger
+            $('.edit-btn').click(function() {
+                const assetId = $(this).data('id');
+                openEditModal(assetId);
             });
         });
 
-        // Trigger edit modal and populate data
         function openEditModal(assetId) {
-            // Fetch asset details using AJAX or other method to pre-fill modal form
             $.ajax({
                 url: 'get_asset.php',
                 type: 'GET',
@@ -173,8 +173,6 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                 },
                 success: function(response) {
                     const asset = JSON.parse(response);
-
-                    // Populate the form fields with the existing asset data
                     $('#editAssetId').val(asset.id);
                     $('#editAssetName').val(asset.asset_name);
                     $('#editCategory').val(asset.category);
@@ -185,21 +183,11 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
                     $('#editAcquisitionDate').val(asset.acquisition_date);
                     $('#editValue').val(asset.value);
                     $('#editLastUpdated').val(asset.last_updated);
+                    $('#editAssetModal').modal('show');
                 }
             });
-
-            $('#editAssetModal').modal('show');
         }
-
-        // Attach edit function to the edit buttons in the table
-        $(document).ready(function() {
-            $('.edit-btn').click(function() {
-                const assetId = $(this).data('id');
-                openEditModal(assetId);
-            });
-        });
     </script>
-
 </body>
 
 </html>

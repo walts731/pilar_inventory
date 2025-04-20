@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <form action="add_asset.php" method="POST">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="addAssetModalLabel">Add New Asset</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" name="save_asset" class="btn btn-success">Save Asset</button>
+                    <button type="submit" name="save_asset" class="btn btn-primary">Save Asset</button>
                 </div>
             </div>
         </form>
