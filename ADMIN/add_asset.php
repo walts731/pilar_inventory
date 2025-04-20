@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_asset'])) {
         if ($stmt->execute()) {
             echo "<script>alert('Asset added successfully!'); window.location.href='assets_list.php';</script>";
         } else {
-            echo "<script>alert('Error adding asset. Please try again.'); window.location.href='assets_list.php';</script>";
+            echo "<script>alert('Error adding asset. Please try again.'); window.location.href='assets.php';</script>";
         }
         $stmt->close();
     } else {

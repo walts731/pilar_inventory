@@ -34,7 +34,16 @@
                     </div>
                     <div class="col-md-4">
                         <label for="unit" class="form-label">Unit</label>
-                        <input type="text" class="form-control" name="unit">
+                        <select class="form-select" name="unit" required>
+                            <option value="" disabled selected>Select unit</option>
+                            <option value="pcs">pcs</option>
+                            <option value="box">box</option>
+                            <option value="kg">kg</option>
+                            <option value="liters">liters</option>
+                            <option value="pack">pack</option>
+                            <option value="set">set</option>
+                            <option value="unit">unit</option> <!-- for vehicle or general asset -->
+                        </select>
                     </div>
                     <div class="col-md-4">
                         <label for="status" class="form-label">Status</label>

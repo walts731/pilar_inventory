@@ -46,8 +46,18 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="editUnit" class="form-label">Unit</label>
-                                <input type="text" class="form-control" id="editUnit" name="unit" required>
+                                <select class="form-select" id="editUnit" name="unit" required>
+                                    <option value="" disabled selected>Select unit</option>
+                                    <option value="pcs">pcs</option>
+                                    <option value="box">box</option>
+                                    <option value="kg">kg</option>
+                                    <option value="liters">liters</option>
+                                    <option value="pack">pack</option>
+                                    <option value="set">set</option>
+                                    <option value="unit">unit</option> <!-- for vehicles or general item -->
+                                </select>
                             </div>
+
 
                             <div class="mb-3">
                                 <label for="editStatus" class="form-label">Status</label>

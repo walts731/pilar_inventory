@@ -139,7 +139,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
     <!-- Modals -->
     <?php include 'include/add_asset_modal.php'; ?>
     <?php include 'include/edit_asset_modal.php'; ?>
-    <?php include '../modal/manage_categories_modal.php'; ?>
+    <?php include 'include/manage_categories_modal.php'; ?>
     <?php include '../includes/script.php'; ?>
 
     <!-- DataTables Scripts -->
