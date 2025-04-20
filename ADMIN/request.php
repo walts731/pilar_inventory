@@ -32,12 +32,10 @@ if ($officeFilter != '') {
     $filterQuery .= " WHERE br.office_id != $officeId";
 }
 
-
 $requestQuery = $conn->query($filterQuery);
 
 // Fetch all categories for the filter dropdown (optional)
 $categoryQuery = $conn->query("SELECT id, category_name FROM categories");
-
 ?>
 
 <!DOCTYPE html>
@@ -61,13 +59,13 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories");
             <?php include 'include/topbar.php'; ?>
 
             <h3>Asset Borrow Requests</h3>
-            
+
             <!-- Filter Form -->
-            <form action="requests.php" method="GET" class="mb-4">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="filter_office">Filter by Office</label>
-                        <select name="filter_office" id="filter_office" class="form-control">
+            <form action="request.php" method="GET" class="mb-4">
+                <div class="row g-2">
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <label for="filter_office" class="form-label">Filter by Office</label>
+                        <select name="filter_office" id="filter_office" class="form-control" onchange="this.form.submit()">
                             <option value="">All Offices</option>
                             <?php while ($office = $officeFilterQuery->fetch_assoc()) { ?>
                                 <option value="<?php echo $office['id']; ?>" <?php echo ($office['id'] == $officeFilter) ? 'selected' : ''; ?>>
@@ -75,10 +73,6 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories");
                                 </option>
                             <?php } ?>
                         </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label>&nbsp;</label><br>
-                        <button type="submit" class="btn btn-primary">Filter</button>
                     </div>
                 </div>
             </form>
@@ -89,33 +83,55 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories");
                     <h4>Borrow Requests</h4>
                 </div>
                 <div class="card-body">
-                    <table id="requestsTable" class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>Asset Name</th>
-                                <th>Requested By</th>
-                                <th>Requesting Office</th>
-                                <th>Request Date</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = $requestQuery->fetch_assoc()) { ?>
+                    <div class="table-responsive">
+                        <table id="requestsTable" class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <td><?php echo $row['asset_name']; ?></td>
-                                    <td><?php echo $row['username']; ?></td>
-                                    <td><?php echo $row['office_name']; ?></td>
-                                    <td><?php echo $row['request_date']; ?></td>
-                                    <td><?php echo ucfirst($row['status']); ?></td>
-                                    <td>
-                                        <a href="approve_request.php?id=<?php echo $row['request_id']; ?>" class="btn btn-success btn-sm">Approve</a>
-                                        <a href="reject_request.php?id=<?php echo $row['request_id']; ?>" class="btn btn-danger btn-sm">Reject</a>
-                                    </td>
+                                    <th>Asset Name</th>
+                                    <th>Requested By</th>
+                                    <th>Requesting Office</th>
+                                    <th>Request Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = $requestQuery->fetch_assoc()) { ?>
+                                    <tr>
+                                        <td><?php echo $row['asset_name']; ?></td>
+                                        <td><?php echo $row['username']; ?></td>
+                                        <td><?php echo $row['office_name']; ?></td>
+                                        <td><?php echo date('M d, Y', strtotime($row['request_date'])); ?></td>
+                                        <td>
+                                            <?php
+                                            $status = ucfirst($row['status']);
+                                            $badgeClass = '';
+
+                                            switch (strtolower($row['status'])) {
+                                                case 'pending':
+                                                    $badgeClass = 'bg-warning text-dark';
+                                                    break;
+                                                case 'approved':
+                                                    $badgeClass = 'bg-success';
+                                                    break;
+                                                case 'rejected':
+                                                    $badgeClass = 'bg-danger';
+                                                    break;
+                                                default:
+                                                    $badgeClass = 'bg-secondary';
+                                            }
+                                            ?>
+                                            <span class="badge <?php echo $badgeClass; ?>"><?php echo $status; ?></span>
+                                        </td>
+                                        <td>
+                                            <a href="approve_request.php?id=<?php echo $row['request_id']; ?>" class="btn btn-outline-success btn-sm">&#10003;</a>
+                                            <a href="reject_request.php?id=<?php echo $row['request_id']; ?>" class="btn btn-outline-danger btn-sm">&#10007;</a>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
