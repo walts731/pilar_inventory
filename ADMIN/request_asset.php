@@ -2,7 +2,7 @@
 session_start();
 require '../connect.php'; // Database connection file
 
-// Ensure only Super Admin can access
+// Ensure only Office Admin can access
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'office_admin') {
     header('Location: index.php');
     exit();
@@ -14,16 +14,32 @@ $officeQuery = $conn->query("SELECT office_id FROM users WHERE id = $adminId");
 $officeRow = $officeQuery->fetch_assoc();
 $officeId = $officeRow['office_id'];
 
+// Handle asset request form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $assetName = $conn->real_escape_string($_POST['asset_name']);
+    $quantity = (int) $_POST['quantity'];
+    $unit = $conn->real_escape_string($_POST['unit']);
+    $description = $conn->real_escape_string($_POST['description']);
+    $status = 'pending';
+    $requestDate = date('Y-m-d H:i:s');
+
+    $insertQuery = "INSERT INTO asset_requests (asset_name, user_id, status, request_date, quantity, unit, description, office_id)
+                    VALUES ('$assetName', '$adminId', '$status', '$requestDate', '$quantity', '$unit', '$description', '$officeId')";
+
+    if ($conn->query($insertQuery)) {
+        $_SESSION['success'] = "Asset request submitted successfully.";
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    } else {
+        $_SESSION['error'] = "Error submitting request: " . $conn->error;
+    }
+}
+
 // Fetch requested assets for the admin's office
-$requestQuery = $conn->query("SELECT ar.request_id, ar.asset_id, a.asset_name, ar.status, ar.request_date, ar.quantity, ar.unit, ar.description, o.office_name
-                             FROM asset_requests ar
-                             JOIN assets a ON ar.asset_id = a.id
-                             JOIN offices o ON ar.office_id = o.id
-                             WHERE ar.office_id = '$officeId'");
-
-// Fetch available assets for the request form
-$assetsQuery = $conn->query("SELECT id, asset_name FROM assets");
-
+$requestQuery = $conn->query("SELECT request_id, asset_name, user_id, status, request_date, quantity, unit, description, office_id 
+                              FROM asset_requests 
+                              WHERE office_id = '$officeId'
+                              ORDER BY request_date DESC");
 ?>
 
 <!DOCTYPE html>
@@ -31,7 +47,6 @@ $assetsQuery = $conn->query("SELECT id, asset_name FROM assets");
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asset Requests</title>
     <?php include '../includes/links.php'; ?>
 </head>
@@ -43,40 +58,50 @@ $assetsQuery = $conn->query("SELECT id, asset_name FROM assets");
             <?php include 'include/topbar.php'; ?>
 
             <div class="row">
-                <!-- LEFT: Request an Asset Form -->
+                <!-- LEFT: Request Form -->
                 <div class="col-md-6 mt-5">
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0">Request an Asset</h5>
                         </div>
                         <div class="card-body">
-
                             <?php if (isset($_SESSION['success'])): ?>
-                                <div class="alert alert-success"><?= $_SESSION['success'] ?></div>
-                                <?php unset($_SESSION['success']); ?>
+                                <div class="alert alert-success"><?= $_SESSION['success'];
+                                                                    unset($_SESSION['success']); ?></div>
+                            <?php endif; ?>
+                            <?php if (isset($_SESSION['error'])): ?>
+                                <div class="alert alert-danger"><?= $_SESSION['error'];
+                                                                unset($_SESSION['error']); ?></div>
                             <?php endif; ?>
 
                             <form method="POST">
                                 <div class="row">
-                                    <!-- First Column (Left) -->
+                                    <!-- First Column -->
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="asset_id" class="form-label">Asset</label>
-                                            <input type="text" name="asset_id" id="asset_id" class="form-control" placeholder="Enter Asset" required>
+                                            <label for="asset_name" class="form-label">Asset Name</label>
+                                            <input type="text" name="asset_name" id="asset_name" class="form-control" placeholder="Enter Asset Name" required>
                                         </div>
-
-
                                         <div class="mb-3">
                                             <label for="quantity" class="form-label">Quantity</label>
                                             <input type="number" name="quantity" class="form-control" required min="1">
                                         </div>
                                     </div>
 
-                                    <!-- Second Column (Right) -->
+                                    <!-- Second Column -->
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="unit" class="form-label">Unit</label>
-                                            <input type="text" name="unit" class="form-control" required placeholder="e.g., pcs, boxes">
+                                            <select name="unit" id="unit" class="form-select" required>
+                                                <option value="" disabled selected>Select unit</option>
+                                                <option value="pcs">pcs</option>
+                                                <option value="unit">unit</option>
+                                                <option value="boxes">boxes</option>
+                                                <option value="liters">liters</option>
+                                                <option value="kilograms">kilograms</option>
+                                                <option value="reams">reams</option>
+                                                <option value="meters">meters</option>
+                                            </select>
                                         </div>
 
                                         <div class="mb-3">
@@ -88,7 +113,6 @@ $assetsQuery = $conn->query("SELECT id, asset_name FROM assets");
 
                                 <button type="submit" class="btn btn-primary">Submit Request</button>
                             </form>
-
                         </div>
                     </div>
                 </div>
@@ -100,8 +124,7 @@ $assetsQuery = $conn->query("SELECT id, asset_name FROM assets");
                             <h5 class="mb-0">Requested Assets</h5>
                         </div>
                         <div class="card-body">
-                            <!-- Table to display requested assets -->
-                            <table class="table table-sm table-bordered table-hover">
+                            <table id="assetRequestTable" class="table table-sm table-hover">
                                 <thead>
                                     <tr>
                                         <th>Asset</th>
@@ -112,37 +135,53 @@ $assetsQuery = $conn->query("SELECT id, asset_name FROM assets");
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while ($req = $requestQuery->fetch_assoc()): ?>
+                                    <?php if ($requestQuery->num_rows > 0): ?>
+                                        <?php while ($req = $requestQuery->fetch_assoc()): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($req['asset_name']) ?></td>
+                                                <td><?= htmlspecialchars($req['quantity']) . ' ' . htmlspecialchars($req['unit']) ?></td>
+                                                <td>
+                                                    <?php
+                                                    $status = $req['status'];
+                                                    $badge = match ($status) {
+                                                        'approved' => 'success',
+                                                        'pending' => 'warning',
+                                                        default => 'secondary',
+                                                    };
+                                                    echo "<span class='badge bg-$badge'>" . ucfirst($status) . "</span>";
+                                                    ?>
+                                                </td>
+                                                <td><?= date('M d, Y', strtotime($req['request_date'])) ?></td>
+                                                <td><?= htmlspecialchars($req['description']) ?></td>
+                                            </tr>
+                                        <?php endwhile; ?>
+                                    <?php else: ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($req['asset_name']) ?></td>
-                                            <td><?= htmlspecialchars($req['quantity']) ?> <?= htmlspecialchars($req['unit']) ?></td>
-                                            <td>
-                                                <?php
-                                                $status = $req['status'];
-                                                $badge = match ($status) {
-                                                    'approved' => 'success',
-                                                    'pending' => 'warning',
-                                                    default => 'secondary',
-                                                };
-                                                echo "<span class='badge bg-$badge'>" . ucfirst($status) . "</span>";
-                                                ?>
-                                            </td>
-                                            <td><?= date('M d, Y', strtotime($req['request_date'])) ?></td>
-                                            <td><?= htmlspecialchars($req['description']) ?></td>
+                                            <td colspan="5" class="text-center">No requests yet.</td>
                                         </tr>
-                                    <?php endwhile; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-
             </div> <!-- /.row -->
-
         </div> <!-- /.container-fluid -->
     </div> <!-- /.d-flex -->
 
     <?php include '../includes/script.php'; ?>
+    <!-- jQuery (required by DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#assetRequestTable').DataTable();
+        });
+    </script>
+
 </body>
 
 </html>

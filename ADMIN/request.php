@@ -58,7 +58,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories");
         <div class="container-fluid p-4">
             <?php include 'include/topbar.php'; ?>
 
-            <h3>Asset Borrow Requests</h3>
+            <h3 class="mt-4">Asset Borrow Requests</h3>
 
             <!-- Filter Form -->
             <form action="request.php" method="GET" class="mb-4">
@@ -78,7 +78,7 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories");
             </form>
 
             <!-- Card for DataTable -->
-            <div class="card">
+            <div class="card mt-4">
                 <div class="card-header">
                     <h4>Borrow Requests</h4>
                 </div>

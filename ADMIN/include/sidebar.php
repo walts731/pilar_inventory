@@ -21,24 +21,25 @@
         </li>
         <li>
             <a href="request.php" class="nav-link <?php echo ($current_page == 'request.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
-                <i class="bi bi-file-earmark-text me-2"></i> Borrow Requests
+                <i class="bi bi-journal-plus me-2"></i> Borrow Requests
             </a>
         </li>
         <li>
             <a href="returns.php" class="nav-link <?php echo ($current_page == 'returns.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
-                <i class="bi bi-file-earmark-text me-2"></i> Assets Returns
+                <i class="bi bi-arrow-90deg-left me-2"></i> Assets Returns
             </a>
         </li>
         <li>
             <a href="request_asset.php" class="nav-link <?php echo ($current_page == 'request_asset.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
-                <i class="bi bi-file-earmark-text me-2"></i> Request Assets
+                <i class="bi bi-box-seam me-2"></i> Request Assets
             </a>
         </li>
         <li>
             <a href="borrow_asset.php" class="nav-link <?php echo ($current_page == 'borrow_asset.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
-                <i class="bi bi-file-earmark-text me-2"></i> Borrow Assets
+                <i class="bi bi-arrow-left-right me-2"></i> Borrow Assets
             </a>
         </li>
+
         <li>
             <a href="users.php" class="nav-link <?php echo ($current_page == 'users.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-people me-2"></i> User Management
@@ -56,9 +57,10 @@
         </li>
         <li>
             <a href="analytics.php" class="nav-link <?php echo ($current_page == 'analytics.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
-                <i class="bi bi-bar-chart-line me-2"></i> Analytics
+                <i class="bi bi-graph-up me-2"></i> Analytics
             </a>
         </li>
+
         <li>
             <a href="archive.php" class="nav-link <?php echo ($current_page == 'archive.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
                 <i class="bi bi-archive me-2"></i> Archive

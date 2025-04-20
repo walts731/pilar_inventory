@@ -40,7 +40,6 @@ $assetQuery = "
     JOIN offices o ON a.office_id = o.id 
     WHERE a.office_id != $officeId AND a.quantity > 0 AND a.status = 'available'
 ";
-
 if ($selectedOffice > 0) {
     $assetQuery .= " AND a.office_id = $selectedOffice";
 }
@@ -79,7 +78,7 @@ $requests = $conn->query("
             <div class="row">
                 <!-- LEFT: Assets -->
                 <div class="col-md-7">
-                    <div class="card mb-4 mt-4">
+                    <div class="card mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">Available Assets to Borrow</h5>
                             <form method="GET" class="d-flex align-items-center">
@@ -95,7 +94,7 @@ $requests = $conn->query("
                             </form>
                         </div>
                         <div class="card-body">
-                            <table id="assetTable" class="table table-hover">
+                            <table id="assetTable" class="table table-bordered table-hover">
                                 <thead>
                                     <tr>
                                         <th>Asset</th>
@@ -110,14 +109,14 @@ $requests = $conn->query("
                                     <?php while ($row = $assets->fetch_assoc()): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($row['asset_name']) ?></td>
-                                            <td><?= htmlspecialchars($row['category']) ?></td>
+                                            <td>Electronics</td>
                                             <td><?= $row['quantity'] ?></td>
                                             <td><?= htmlspecialchars($row['unit']) ?></td>
                                             <td><?= htmlspecialchars($row['office_name']) ?></td>
                                             <td>
                                                 <form method="POST">
                                                     <input type="hidden" name="asset_id" value="<?= $row['id'] ?>">
-                                                    <button type="submit" name="borrow" class="btn btn-sm btn-outline-primary">Borrow</button>
+                                                    <button type="submit" name="borrow" class="btn btn-sm btn-primary">Borrow</button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -130,12 +129,12 @@ $requests = $conn->query("
 
                 <!-- RIGHT: Requests -->
                 <div class="col-md-5">
-                    <div class="card mt-4">
+                    <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0">My Borrow Requests</h5>
                         </div>
                         <div class="card-body">
-                            <table class="table table-sm table-hover">
+                            <table class="table table-sm table-bordered table-hover">
                                 <thead>
                                     <tr>
                                         <th>Asset</th>
