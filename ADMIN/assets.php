@@ -191,3 +191,30 @@ $categoryQuery = $conn->query("SELECT id, category_name FROM categories ORDER BY
 </body>
 
 </html>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Handle delete category click
+    document.getElementById("categoryList").addEventListener("click", function (e) {
+        if (e.target.closest(".delete-category-btn")) {
+            const button = e.target.closest(".delete-category-btn");
+            const categoryId = button.getAttribute("data-id");
+
+            if (confirm("Are you sure you want to delete this category?")) {
+                fetch("delete_category.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "id=" + encodeURIComponent(categoryId)
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert(data);
+                    // Reload categories list (you need a function for that)
+                    loadCategories();
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        }
+    });
+});
+</script>
