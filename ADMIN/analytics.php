@@ -231,31 +231,36 @@ if ($restockResult && $restockResult->num_rows > 0) {
         </div>
 
         <?php if (!empty($restockSuggestions)) : ?>
-  <div class="mt-1">
-    <h4>🛒 Restock Suggestions</h4>
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped">
-        <thead class="table-dark">
+          <div class="mt-1">
+  <h4>🛒 Restock Suggestions</h4>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Asset Name</th>
+          <th>Quantity</th>
+          <th>Suggestion</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($restockSuggestions as $item) : ?>
           <tr>
-            <th>Asset Name</th>
-            <th>Category</th>
-            <th>Quantity</th>
-            <th>Suggestion</th>
+            <td><?= htmlspecialchars($item['asset_name']) ?></td>
+            <td><?= $item['quantity'] ?></td>
+            <td>
+              <?php if ($item['category'] === 'Office Supplies'): ?>
+                <?= $item['category'] ?> - <?= $item['quantity'] == 0 ? 'Urgent Restock' : 'Consider Restocking' ?>
+              <?php else: ?>
+                -
+              <?php endif; ?>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($restockSuggestions as $item) : ?>
-            <tr>
-              <td><?= htmlspecialchars($item['asset_name']) ?></td>
-              <td><?= htmlspecialchars($item['category']) ?></td>
-              <td><?= $item['quantity'] ?></td>
-              <td><?= $item['quantity'] == 0 ? 'Urgent Restock' : 'Consider Restocking' ?></td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
   </div>
+</div>
+
 <?php else : ?>
   <div class="mt-1">
     <h4>🛒 Restock Suggestions</h4>
