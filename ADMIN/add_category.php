@@ -1,5 +1,6 @@
 <?php
 include('../connect.php');
+require '../include/log_activity.php'; // Include the logging function
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $category_name = mysqli_real_escape_string($conn, $_POST['category_name']);

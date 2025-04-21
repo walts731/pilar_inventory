@@ -1,5 +1,7 @@
 <?php
 session_start();
+require '../include/log_activity.php'; // Include the logging function
+
 
 // Load export settings
 $exportSettings = [];

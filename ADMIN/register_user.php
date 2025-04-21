@@ -1,6 +1,8 @@
 <?php
 session_start();
 require '../connect.php'; // Include your database connection
+require '../include/log_activity.php'; // Include the logging function
+
 
 // Ensure only Admins can access the page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'office_admin') {

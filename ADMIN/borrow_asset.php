@@ -1,6 +1,7 @@
 <?php
 session_start();
 require '../connect.php';
+require '../include/log_activity.php'; // Include the logging function
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'office_admin') {
     header('Location: index.php');

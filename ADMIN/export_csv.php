@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('../connect.php');
+require '../include/log_activity.php'; // Include the logging function
 
 // Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {

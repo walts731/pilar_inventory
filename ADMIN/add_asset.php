@@ -2,6 +2,8 @@
 session_start();
 require '../connect.php';
 require '../vendor/autoload.php'; // Include Composer's autoloader
+require 'include/log_activity.php'; // Include the logging function
+
 
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
@@ -96,6 +98,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_asset'])) {
         $stmt->bind_param("sssiissdiii", $asset_name, $category_id, $description, $quantity, $unit, $status, $acquisition_date, $value, $red_tagged, $officeId, $qrFileName);
 
         if ($stmt->execute()) {
+            // Log the activity
+            logActivity($conn, $_SESSION['user_id'], $officeId, 'Assets', 'Added asset: ' . $asset_name);
+        
             echo "<script>alert('Asset added successfully!'); window.location.href='assets.php';</script>";
         } else {
             echo "<script>alert('Error adding asset: " . $stmt->error . "'); window.location.href='assets.php';</script>";

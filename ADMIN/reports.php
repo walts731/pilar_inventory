@@ -1,6 +1,8 @@
 <?php
 session_start();
 include('../connect.php');
+require '../include/log_activity.php'; // Include the logging function
+
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {

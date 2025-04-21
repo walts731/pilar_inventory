@@ -1,5 +1,6 @@
 <?php
 include('../connect.php');
+require '../include/log_activity.php'; // Include the logging function
 
 $query = "SELECT c.id, c.category_name, 
           (SELECT COUNT(*) FROM assets WHERE category = c.id) AS asset_count 
