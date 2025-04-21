@@ -1,7 +1,7 @@
 <?php
 session_start();
 require '../connect.php'; // Include your database connection
-require '../include/log_activity.php'; // Include the logging function
+require 'include/log_activity.php'; // Include the logging function
 
 
 // Ensure only Admins can access the page

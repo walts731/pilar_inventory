@@ -1,7 +1,7 @@
 <?php
 session_start();
 require '../connect.php';
-require '../include/log_activity.php'; // Include the logging function
+require 'include/log_activity.php'; // Include the logging function
 
 // Ensure only office_admin can access
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'office_admin') {
