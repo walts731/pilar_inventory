@@ -78,10 +78,12 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives WHERE filter_office =
                                 <tbody>
                                     <?php
                                     $query = "SELECT assets.asset_name, categories.category_name, assets.quantity, assets.last_updated
-                                        FROM assets
-                                        JOIN categories ON assets.category = categories.id
-                                        WHERE assets.office_id = $officeId
-                                        ORDER BY assets.last_updated DESC LIMIT 5";
+    FROM assets
+    JOIN categories ON assets.category = categories.id
+    WHERE assets.office_id = $officeId
+      AND categories.category_name = 'Office Supplies'
+    ORDER BY assets.last_updated DESC LIMIT 5";
+
                                     $recentInventoryQuery = $conn->query($query);
 
                                     while ($inventory = $recentInventoryQuery->fetch_assoc()) {
@@ -101,6 +103,7 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives WHERE filter_office =
                                             <td><?php echo $formattedDate; ?></td>
                                         </tr>
                                     <?php } ?>
+
                                 </tbody>
 
                             </table>
