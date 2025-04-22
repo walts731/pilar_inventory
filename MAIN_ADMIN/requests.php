@@ -22,7 +22,7 @@ SELECT ar.request_id,
        ar.description, 
        o.office_name
 FROM asset_requests ar
-JOIN assets a ON ar.asset_id = a.id
+JOIN assets a ON ar.asset_name = a.id
 JOIN users u ON ar.user_id = u.id
 JOIN offices o ON ar.office_id = o.id
 ";

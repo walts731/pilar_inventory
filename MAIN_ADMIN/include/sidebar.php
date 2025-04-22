@@ -60,8 +60,8 @@
             </a>
         </li>
         <li>
-            <a href="analytics.php" class="nav-link <?php echo ($current_page == 'reports.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
-                <i class="bi bi-bar-chart-line me-2"></i> Analytics
+            <a href="analytics.php" class="nav-link <?php echo ($current_page == 'analytics.php') ? 'active bg-white text-primary' : 'text-white'; ?>">
+                <i class="bi bi-graph-up me-2"></i> Analytics
             </a>
         </li>
         <li>
