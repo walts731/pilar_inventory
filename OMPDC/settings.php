@@ -23,67 +23,7 @@ $export_logo = $exportSettings['export_logo'] ?? '../img/logo.jpg';
   <?php include '../includes/links.php'; ?>
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" />
-  <style>
-    .tab-content {
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-top: none;
-      margin-top: -1px;
-    }
-
-    .nav-pills .nav-link.active {
-      background-color: #007bff;
-    }
-
-    .preview-box {
-      padding: 15px;
-      border: 1px solid #ccc;
-      background-color: #f8f9fa;
-    }
-
-    .paper-preview {
-      width: 100%;
-      height: 500px;
-      border: 1px solid #ccc;
-      background: white;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      font-family: 'Arial', sans-serif;
-      position: relative;
-    }
-
-    .paper-header {
-      text-align: center;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 10px;
-    }
-
-    .paper-header img {
-      height: 50px;
-      display: block;
-      margin: 0 auto 10px auto;
-    }
-
-    .paper-content {
-      flex-grow: 1;
-      padding: 20px;
-      font-size: 14px;
-      color: #444;
-      text-align: center;
-    }
-
-    .paper-footer {
-      text-align: center;
-      border-top: 1px solid #eee;
-      padding-top: 10px;
-      font-style: italic;
-      font-size: 13px;
-      color: #666;
-    }
-  </style>
+  <link rel="stylesheet" href="../css/settings.css" />
 </head>
 
 <body>
@@ -102,6 +42,7 @@ $export_logo = $exportSettings['export_logo'] ?? '../img/logo.jpg';
               <a class="nav-link" id="advanced-tab" data-bs-toggle="pill" href="#advanced" role="tab">Advanced</a>
               <a class="nav-link" id="backup-restore-tab" data-bs-toggle="pill" href="#backup-restore" role="tab">Backup & Restore</a>
               <a class="nav-link" id="export-tab" data-bs-toggle="pill" href="#export" role="tab">Export Settings</a>
+              <a class="nav-link" id="report-generation-tab" data-bs-toggle="pill" href="#report-generation" role="tab">Report Generation</a>
             </div>
           </div>
 
@@ -232,6 +173,29 @@ $export_logo = $exportSettings['export_logo'] ?? '../img/logo.jpg';
 
                 </div>
               </div>
+
+              <!-- Report Generation Settings -->
+<div class="tab-pane fade" id="report-generation" role="tabpanel">
+  <h4>Automated Report Generation</h4>
+  <form action="save_report_settings.php" method="POST">
+    <div class="mb-3">
+      <label class="form-label">Frequency</label>
+      <select class="form-select" name="report_frequency" required>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+        <option value="off">Off</option>
+      </select>
+    </div>
+    
+    <div class="mb-3">
+      <label class="form-label">Report Time (HH:MM)</label>
+      <input type="time" name="report_time" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Settings</button>
+  </form>
+</div>
+
             </div>
           </div>
         </div>
@@ -310,6 +274,12 @@ $export_logo = $exportSettings['export_logo'] ?? '../img/logo.jpg';
         }
       });
     });
+
+    $reportSettings = [];
+if (file_exists('../config/report_settings.json')) {
+  $reportSettings = json_decode(file_get_contents('../config/report_settings.json'), true);
+}
+
   </script>
 </body>
 

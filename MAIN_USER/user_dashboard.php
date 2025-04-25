@@ -45,15 +45,24 @@ $recentReportsQuery = $conn->query("SELECT * FROM archives ORDER BY created_at D
                 <div class="card mb-4">
                     <div class="card-body">
                         <h3 class="card-title">Generate Reports</h3>
-                        <p class="card-text">Download your asset records.</p>
+                        <p class="card-text">Download your asset records or scan QR to view asset details.</p>
 
-                        <button class="btn btn-danger rounded-pill">
+                        <!-- Export PDF Button -->
+                        <button class="btn btn-danger rounded-pill me-2">
                             <a href="generate_pdf.php" target="_blank" class="text-white text-decoration-none">
                                 Export PDF
                             </a>
                         </button>
+
+                        <!-- Scan QR Button -->
+                        <button class="btn btn-success rounded-pill">
+                            <a href="scan_qr.php" class="text-white text-decoration-none">
+                                Scan QR
+                            </a>
+                        </button>
                     </div>
                 </div>
+
             </div>
 
             <!-- Right Content Section -->
