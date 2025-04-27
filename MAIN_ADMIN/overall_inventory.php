@@ -64,64 +64,64 @@ $result = mysqli_query($conn, $query);
             All Assets
           </div>
           <div class="card-body">
-          <table class="table table-striped" id="inventoryTable">
-  <thead>
-    <tr>
-      <th>Asset Name</th>
-      <th>Category</th>
-      <th>Description</th>
-      <th>Quantity</th>
-      <th>Unit</th>
-      <th>Value</th>
-      <th>Status</th>
-      <th>Office</th>
-      <th>QR Code</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php while ($asset = mysqli_fetch_assoc($result)) { ?>
-      <tr>
-        <td><?php echo htmlspecialchars($asset['asset_name']); ?></td>
-        <td><?php echo htmlspecialchars($asset['category_name']); ?></td>
-        <td><?php echo htmlspecialchars($asset['description']); ?></td>
-        <td>
-          <?php echo htmlspecialchars($asset['quantity']); ?>
-          <?php if ($asset['quantity'] < 5 && $asset['category_name'] === 'Office Supplies') { ?>
-            <span class="badge bg-danger ms-1">Low Stock</span>
-          <?php } ?>
-        </td>
-        <td><?php echo htmlspecialchars($asset['unit']); ?></td>
-        <td>₱<?php echo number_format($asset['value'], 2); ?></td>
-        <td><?php echo htmlspecialchars($asset['status']); ?></td>
-        <td><?php echo htmlspecialchars($asset['office_name']); ?></td>
-        <td>
-          <?php if (!empty($asset['qr_code'])) { ?>
-            <img src="<?php echo $asset['qr_code']; ?>" alt="QR Code" width="50">
-          <?php } else { ?>
-            <span class="text-muted">No QR Code</span>
-          <?php } ?>
-        </td>
-        <td>
-          <a href="#" class="text-warning me-2 edit-asset"
-            title="Edit"
-            data-asset-id="<?php echo $asset['id']; ?>"
-            data-bs-toggle="modal"
-            data-bs-target="#editAssetModal">
-            <i class="fas fa-edit"></i>
-          </a>
-          <a href="#" class="text-danger me-2 red-tag-asset"
-            title="Red Tag"
-            data-asset-id="<?php echo $asset['id']; ?>"
-            data-bs-toggle="modal"
-            data-bs-target="#redTagModal">
-            <i class="fas fa-times-circle"></i> Red Tag
-          </a>
-        </td>
-      </tr>
-    <?php } ?>
-  </tbody>
-</table>
+            <table class="table table-striped" id="inventoryTable">
+              <thead>
+                <tr>
+                  <th>Asset Name</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Quantity</th>
+                  <th>Unit</th>
+                  <th>Value</th>
+                  <th>Status</th>
+                  <th>Office</th>
+                  <th>QR Code</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php while ($asset = mysqli_fetch_assoc($result)) { ?>
+                  <tr>
+                    <td><?php echo htmlspecialchars($asset['asset_name']); ?></td>
+                    <td><?php echo htmlspecialchars($asset['category_name']); ?></td>
+                    <td><?php echo htmlspecialchars($asset['description']); ?></td>
+                    <td>
+                      <?php echo htmlspecialchars($asset['quantity']); ?>
+                      <?php if ($asset['quantity'] < 5 && $asset['category_name'] === 'Office Supplies') { ?>
+                        <span class="badge bg-danger ms-1">Low Stock</span>
+                      <?php } ?>
+                    </td>
+                    <td><?php echo htmlspecialchars($asset['unit']); ?></td>
+                    <td>₱<?php echo number_format($asset['value'], 2); ?></td>
+                    <td><?php echo htmlspecialchars($asset['status']); ?></td>
+                    <td><?php echo htmlspecialchars($asset['office_name']); ?></td>
+                    <td>
+                      <?php if (!empty($asset['qr_code'])) { ?>
+                        <img src="<?php echo $asset['qr_code']; ?>" alt="QR Code" width="50">
+                      <?php } else { ?>
+                        <span class="text-muted">No QR Code</span>
+                      <?php } ?>
+                    </td>
+                    <td>
+                      <a href="#" class="text-warning me-2 edit-asset"
+                        title="Edit"
+                        data-asset-id="<?php echo $asset['id']; ?>"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editAssetModal">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a href="#" class="text-danger me-2 red-tag-asset"
+                        title="Red Tag"
+                        data-asset-id="<?php echo $asset['id']; ?>"
+                        data-bs-toggle="modal"
+                        data-bs-target="#redTagModal">
+                        <i class="fas fa-times-circle"></i> Red Tag
+                      </a>
+                    </td>
+                  </tr>
+                <?php } ?>
+              </tbody>
+            </table>
 
           </div>
         </div>

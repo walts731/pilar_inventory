@@ -76,16 +76,7 @@
             </div>
           </div>
           
-          <div class="row mb-3">
-            <div class="col-md-12">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="edit_generate_qr" name="generate_qr">
-                <label class="form-check-label" for="edit_generate_qr">
-                  Regenerate QR Code
-                </label>
-              </div>
-            </div>
-          </div>
+          
         </form>
       </div>
       <div class="modal-footer">

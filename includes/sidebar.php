@@ -1,5 +1,5 @@
 <!-- Sidebar -->
-<div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-primary text-white vh-100" style="width: 250px;">
+<div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-primary text-white" style="width: 250px;">
     <a href="system_admin_dashboard.php" class="text-white text-decoration-none d-flex align-items-center mb-3">
         <img src="../img/logo.jpg" alt="Logo" width="40" class="me-2">
         <span class="fs-5 fw-bold">Pilar Inventory</span>
