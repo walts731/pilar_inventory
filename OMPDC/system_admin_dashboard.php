@@ -50,6 +50,14 @@ while ($row = $valueResult->fetch_assoc()) {
     $valuePerMonthData[] = $row;
 }
 
+// Asset Status Distribution
+$statusData = [];
+$statusQuery = "SELECT status, COUNT(*) AS count FROM assets GROUP BY status";
+$statusResult = $conn->query($statusQuery);
+while ($row = $statusResult->fetch_assoc()) {
+  $statusData[$row['status']] = $row['count'];
+}
+
 // Assets acquired per month
 $monthlyData = [];
 $monthResult = $conn->query("
@@ -101,10 +109,18 @@ $conn->close();
             <?php endforeach; ?>
         </div>
 
-        <!-- ACTIVITY & INVENTORY TABLES -->
+        <!-- CHARTS AND ACTIVITIES -->
         <div class="row">
+            <!-- Asset Status Pie Chart -->
+            <div class="col-md-3 d-flex flex-column align-items-center mb-4">
+                <h5 class="text-center">Asset Status Distribution</h5>
+                <div style="width: 200px; height: 200px;">
+                    <canvas id="statusPieChart"></canvas>
+                </div>
+            </div>
+
             <!-- Recent Activities -->
-            <div class="col-md-6 mb-4">
+            <div class="col-md-9 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">Recent Activities</div>
                     <div class="card-body p-2">
@@ -131,8 +147,11 @@ $conn->close();
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Asset Value Chart -->
+        <!-- ASSET CHARTS -->
+        <div class="row">
+            <!-- Total Asset Value Per Month Chart -->
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header text-center fw-bold">Total Asset Value Per Month</div>
@@ -141,40 +160,8 @@ $conn->close();
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- CHARTS -->
-        <div class="row">
-            <!-- Inventory Actions -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-success text-white">Inventory Actions</div>
-                    <div class="card-body p-2">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Action</th>
-                                    <th>Category</th>
-                                    <th>Qty</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($inventory_actions as $ia): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($ia['action_name']) ?></td>
-                                        <td><?= htmlspecialchars($ia['category']) ?></td>
-                                        <td><?= $ia['quantity'] ?></td>
-                                        <td><?= date('M d, Y h:i A', strtotime($ia['action_date'])) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Monthly Acquisition Chart -->
+            <!-- Assets Acquired Per Month Chart -->
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header text-center fw-bold">Assets Acquired Per Month</div>
@@ -187,12 +174,50 @@ $conn->close();
     </div>
 </div>
 
+
 <!-- CHART SCRIPTS -->
 <script>
 const valueLabels = <?= json_encode(array_column($valuePerMonthData, 'month')) ?>;
 const valueTotals = <?= json_encode(array_map('floatval', array_column($valuePerMonthData, 'total_value'))) ?>;
 const monthlyLabels = <?= json_encode(array_column($monthlyData, 'month')) ?>;
 const monthlyCounts = <?= json_encode(array_map('intval', array_column($monthlyData, 'total'))) ?>;
+
+// 🔵 Add these two lines:
+const statusLabels = <?= json_encode(array_keys($statusData)) ?>;
+const statusCounts = <?= json_encode(array_values($statusData)) ?>;
+
+
+const ctxPie = document.getElementById('statusPieChart').getContext('2d');
+    const statusPieChart = new Chart(ctxPie, {
+      type: 'pie',
+      data: {
+        labels: statusLabels,
+        datasets: [{
+          label: 'Asset Status',
+          data: statusCounts,
+          backgroundColor: [
+            '#4CAF50', // available - green
+            '#2196F3', // in use - blue
+            '#9E9E9E', // disposed - grey
+            '#f44336', // unserviceable - red
+            '#FF9800' // maintenance - orange
+          ],
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right'
+          },
+          title: {
+            display: false
+          }
+        }
+      }
+    });
 
 // Value per Month Line Chart
 new Chart(document.getElementById('valuePerMonthChart'), {
