@@ -76,7 +76,7 @@ while ($row = $result->fetch_assoc()) {
             <!-- Filter Form -->
             <form method="GET" class="mb-4">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <select name="office" class="form-control">
                             <option value="">All Offices</option>
                             <?php while ($row = $officeQuery->fetch_assoc()): ?>
@@ -86,7 +86,7 @@ while ($row = $result->fetch_assoc()) {
                             <?php endwhile; ?>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <select name="category" class="form-control">
                             <option value="">All Categories</option>
                             <?php while ($row = $categoryQuery->fetch_assoc()): ?>

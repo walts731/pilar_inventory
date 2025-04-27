@@ -68,9 +68,15 @@ $returnedAssetsQuery = $conn->query("
                                     <td><?= htmlspecialchars($row['asset_name']) ?></td>
                                     <td><?= htmlspecialchars($row['username']) ?></td>
                                     <td><?= htmlspecialchars($row['office_name']) ?></td>
-                                    <td><?= htmlspecialchars($row['return_date']) ?></td>
+                                    <td>
+                                        <?= date('M d, Y', strtotime(htmlspecialchars($row['return_date']))) ?>
+                                    </td>
                                     <td><?= htmlspecialchars($row['condition_on_return']) ?></td>
-                                    <td><?= htmlspecialchars($row['remarks']) ?></td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            <?= htmlspecialchars($row['remarks']) ?>
+                                        </span>
+                                    </td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -88,7 +94,7 @@ $returnedAssetsQuery = $conn->query("
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('#returnedAssetsTable').DataTable();
         });
     </script>

@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
     <div class="d-flex">
-        <?php include '../includes/sidebar.php'; ?>
+    <?php include '../includes/sidebar.php'; ?>
         <div class="container-fluid p-4">
             <?php include '../includes/topbar.php'; ?>
 

@@ -89,16 +89,33 @@ if ($valueResult && $row = $valueResult->fetch_assoc()) {
   $totalValue = $row['total_value'];
 }
 
-// Get assets with low stock for restock suggestion
-$restockQuery = "SELECT asset_name, quantity, category FROM assets WHERE quantity < 5 ORDER BY quantity ASC";
+// Get assets with low stock for restock suggestion (only Office Supplies)
+$restockQuery = "
+    SELECT a.asset_name, a.quantity, c.category_name 
+    FROM assets a 
+    JOIN categories c ON a.category = c.id 
+    WHERE a.quantity < 5 AND c.category_name = 'Office Supplies'
+    ORDER BY a.quantity ASC
+";
+
 $restockResult = $conn->query($restockQuery);
 
 $restockSuggestions = [];
 if ($restockResult && $restockResult->num_rows > 0) {
-  while ($row = $restockResult->fetch_assoc()) {
-    $restockSuggestions[] = $row;
-  }
+    while ($row = $restockResult->fetch_assoc()) {
+        // Make sure 'category_name' is set
+        if (isset($row['category_name'])) {
+            $restockSuggestions[] = $row;
+        } else {
+            // Optionally, log or handle this error
+            echo "Category name is missing in the row result.<br>";
+        }
+    }
+} else {
+    // Handle case if no results were returned
+    echo "No items found for restocking.";
 }
+
 
 ?>
 
@@ -215,7 +232,7 @@ if ($restockResult && $restockResult->num_rows > 0) {
           <?php foreach ($restockSuggestions as $item) : ?>
             <tr>
               <td><?= htmlspecialchars($item['asset_name']) ?></td>
-              <td><?= htmlspecialchars($item['category']) ?></td>
+              <td><?= htmlspecialchars($item['category_name']) ?></td>
               <td><?= $item['quantity'] ?></td>
               <td><?= $item['quantity'] == 0 ? 'Urgent Restock' : 'Consider Restocking' ?></td>
             </tr>
