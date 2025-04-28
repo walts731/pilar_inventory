@@ -89,25 +89,26 @@ $conn->close();
         <?php include '../includes/topbar.php'; ?>
 
         <!-- SUMMARY CARDS -->
-        <div class="row mb-4">
-            <?php
-            $cards = [
-                ['title' => 'Total Assets',         'count' => $total_assets,     'class' => 'primary'],
-                ['title' => 'Pending Requests',     'count' => $pending_requests, 'class' => 'warning'],
-                ['title' => 'Red-Tagged Assets',    'count' => $red_tagged_assets,'class' => 'danger'],
-                ['title' => 'Low Stock Assets',     'count' => $low_stock_assets, 'class' => 'secondary'],
-            ];
-            foreach ($cards as $card): ?>
-                <div class="col-md-3">
-                    <div class="card text-bg-<?= $card['class']; ?> shadow-sm mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title"><?= $card['title']; ?></h5>
-                            <h3 class="card-text"><?= $card['count']; ?></h3>
-                        </div>
-                    </div>
+<div class="row mb-4 mt-5">
+    <?php
+    $cards = [
+        ['title' => 'Total Assets',         'count' => $total_assets,     'class' => 'primary',   'border_class' => 'border-success'],
+        ['title' => 'Pending Requests',     'count' => $pending_requests, 'class' => 'warning',   'border_class' => 'border-warning'],
+        ['title' => 'Red-Tagged Assets',    'count' => $red_tagged_assets,'class' => 'danger',    'border_class' => 'border-danger'],
+        ['title' => 'Low Stock Assets',     'count' => $low_stock_assets, 'class' => 'secondary','border_class' => 'border-secondary'],
+    ];
+    foreach ($cards as $card): ?>
+        <div class="col-md-3">
+            <div class="card border <?= $card['border_class']; ?> shadow-sm mb-3">
+                <div class="card-body">
+                    <h5 class="card-title"><?= $card['title']; ?></h5>
+                    <h3 class="card-text"><?= $card['count']; ?></h3>
                 </div>
-            <?php endforeach; ?>
+            </div>
         </div>
+    <?php endforeach; ?>
+</div>
+
 
         <!-- CHARTS AND ACTIVITIES -->
         <div class="row">
